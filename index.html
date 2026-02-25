@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador Exani II - Trigonometría y Sistemas de Ecuaciones</title>
+    <!-- EmailJS Library -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -450,14 +452,19 @@
     </div>
 
     <script>
-        // Configuración de Email (usando EmailJS - servicio gratuito)
-        // IMPORTANTE: Deberás registrarte en https://www.emailjs.com/
+        // =============================================
+        // CONFIGURACIÓN DE EMAILJS - TUS DATOS
+        // =============================================
         const EMAIL_CONFIG = {
-            serviceId: 'service_6svkub7',  // Cambia esto después de registrarte
-            templateId: 'template_fq667qa',   // Cambia esto después de registrarte
-            userId: 'I9nGobBxGUrKY2k16',           // Cambia esto después de registrarte
-            teacherEmail: 'servicioseducativosoxford@gmail.com' // TU CORREO AQUÍ
+            serviceId: 'service_6svkub7',
+            templateId: 'template_fq667qa',
+            userId: 'I9nGobBxGUrKY2k16',
+            teacherEmail: 'servicioseducativosoxford@gmail.com'
         };
+
+        // Inicializar EmailJS con tu Public Key
+        emailjs.init(EMAIL_CONFIG.userId);
+        // =============================================
 
         // Banco de preguntas
         const questions = [
@@ -1030,32 +1037,49 @@
             indicator.style.backgroundColor = '#3498db';
 
             try {
-                // Aquí iría la integración con EmailJS
-                // Por ahora simulamos el envío
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Preparar los parámetros para la plantilla
+                const templateParams = {
+                    student_name: currentStudent.name,
+                    student_email: currentStudent.email,
+                    date: attemptData.date,
+                    attempt_number: attemptData.attemptNumber,
+                    time_used: attemptData.timeUsed,
+                    score: attemptData.totalScore,
+                    correct: attemptData.results.correct,
+                    incorrect: attemptData.results.incorrect,
+                    unanswered: attemptData.results.unanswered,
+                    trigonometria: `${attemptData.results.topicResults['Trigonometría'].correct}/${attemptData.results.topicResults['Trigonometría'].total} (${(attemptData.results.topicResults['Trigonometría'].correct/attemptData.results.topicResults['Trigonometría'].total*100).toFixed(1)}%)`,
+                    sistemas_2x2: `${attemptData.results.topicResults['Sistemas 2x2'].correct}/${attemptData.results.topicResults['Sistemas 2x2'].total} (${(attemptData.results.topicResults['Sistemas 2x2'].correct/attemptData.results.topicResults['Sistemas 2x2'].total*100).toFixed(1)}%)`,
+                    sistemas_3x3: `${attemptData.results.topicResults['Sistemas 3x3'].correct}/${attemptData.results.topicResults['Sistemas 3x3'].total} (${(attemptData.results.topicResults['Sistemas 3x3'].correct/attemptData.results.topicResults['Sistemas 3x3'].total*100).toFixed(1)}%)`,
+                    total_attempts: attemptData.results.totalAttempts
+                };
+
+                console.log('📧 Enviando correo con parámetros:', templateParams);
+
+                // Enviar el correo usando EmailJS
+                const response = await emailjs.send(
+                    EMAIL_CONFIG.serviceId,
+                    EMAIL_CONFIG.templateId,
+                    templateParams
+                );
+
+                console.log('✅ Respuesta de EmailJS:', response);
                 
-                indicator.textContent = '✓ Resultados enviados al profesor';
+                indicator.textContent = '✓ Resultados enviados al profesor correctamente';
                 indicator.style.backgroundColor = '#27ae60';
                 
-                // También guardamos en una copia local
-                saveLocalCopy(attemptData);
-                
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 3000);
-                
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error al enviar por email:', error);
                 indicator.textContent = '✗ Error al enviar. Guardando copia local...';
                 indicator.style.backgroundColor = '#e74c3c';
                 
                 // Guardar copia local como respaldo
                 saveLocalCopy(attemptData);
-                
-                setTimeout(() => {
-                    indicator.style.display = 'none';
-                }, 5000);
             }
+            
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 3000);
         }
 
         function saveLocalCopy(attemptData) {
@@ -1074,6 +1098,8 @@
             // Guardar en localStorage como respaldo
             const backupKey = `backup_${currentStudent.email}_${Date.now()}`;
             localStorage.setItem(backupKey, JSON.stringify(results));
+            
+            console.log('📦 Copia de seguridad guardada:', backupKey);
         }
 
         function showAttemptResults(attemptData) {
@@ -1195,5 +1221,4 @@
         }
     </script>
 </body>
-
 </html>
