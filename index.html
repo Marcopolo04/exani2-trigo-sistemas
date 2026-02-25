@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Exani II - Trigonometría y Sistemas de Ecuaciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+            font-weight: normal;
+        }
+
+        .student-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .student-info h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .student-info input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .student-info input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+        }
+
+        .attempts-box {
+            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .attempts-box h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .attempts-box .attempt-count {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e74c3c;
+        }
+
+        .question {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background-color: #667eea;
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .attempts-badge {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: #e8f0fe;
+            border-color: #667eea;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+
+        .option.selected {
+            background-color: #e8f0fe;
+            border-color: #667eea;
+        }
+
+        .option.correct-answer {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option.incorrect-answer {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .option.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e9ecef;
+        }
+
+        .feedback-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback-correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback-incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .feedback-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #7f8c8d;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            margin: 10px;
+        }
+
+        .email-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            margin: 10px;
+        }
+
+        .saving-indicator {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 2000;
+            animation: slideIn 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .instructions {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .student-info {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="saving-indicator" id="savingIndicator">✓ Procesando...</div>
+
+    <div class="container">
+        <h1>📝 Simulador Exani II</h1>
+        <h2>Trigonometría y Sistemas de Ecuaciones</h2>
+        
+        <div class="student-info" id="registrationForm">
+            <h3>📋 Registro del Estudiante</h3>
+            <input type="text" id="studentName" placeholder="Nombre completo del estudiante" required>
+            <input type="email" id="studentEmail" placeholder="Correo electrónico" required>
+            <button class="btn-success" onclick="registerStudent()" style="width: 100%;">Comenzar Simulacro</button>
+        </div>
+
+        <div id="examContent" style="display: none;">
+            <div class="attempts-box" id="attemptsBox">
+                <h3>🎯 Intento #<span id="currentAttempt">1</span> de 3</h3>
+                <div class="attempt-count" id="attemptsLeft">3</div>
+                <p>Intentos restantes para completar el examen</p>
+            </div>
+
+            <div class="timer" id="timer">01:00:00</div>
+
+            <div class="instructions" id="attemptInstructions">
+                <strong>📌 Instrucciones:</strong> Tienes 3 intentos para resolver el examen. 
+                Puedes finalizar cada intento cuando quieras y volver a intentarlo.
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress" id="progress" style="width: 0%"></div>
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <div class="buttons">
+                <button class="btn-secondary" onclick="prevQuestion()" id="prevBtn" disabled>◀ Anterior</button>
+                <button class="btn-primary" onclick="nextQuestion()" id="nextBtn">Siguiente ▶</button>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-success" onclick="finishAttempt()" style="flex: 2;" id="finishBtn">✅ Finalizar este Intento</button>
+                <button class="btn-warning" onclick="showHistory()" style="flex: 1;" id="historyBtn">📊 Ver mi historial</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="resultsModal">
+        <div class="modal-content">
+            <h2 style="color: #333; margin-bottom: 20px;">Resultados del Intento #<span id="modalAttemptNumber"></span></h2>
+            <div id="resultsContent"></div>
+            <button class="btn-primary download-btn" onclick="downloadResults()">📥 Descargar Resultados</button>
+            <button class="btn-secondary" onclick="closeModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
+            <h2 style="color: #333; margin-bottom: 20px;">📊 Historial de Intentos</h2>
+            <div id="historyContent"></div>
+            <button class="btn-secondary" onclick="closeHistoryModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de Email (usando EmailJS - servicio gratuito)
+        // IMPORTANTE: Deberás registrarte en https://www.emailjs.com/
+        const EMAIL_CONFIG = {
+            serviceId: 'default_service',  // Cambia esto después de registrarte
+            templateId: 'template_xxxxx',   // Cambia esto después de registrarte
+            userId: 'user_xxxxx',           // Cambia esto después de registrarte
+            teacherEmail: 'profesor@email.com' // TU CORREO AQUÍ
+        };
+
+        // Banco de preguntas
+        const questions = [
+            // Trigonometría (15 preguntas)
+            {
+                text: "¿Cuál es el valor de sen(30°)?",
+                options: ["1/2", "√3/2", "√2/2"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "Si en un triángulo rectángulo, el cateto opuesto a un ángulo agudo mide 3 y la hipotenusa mide 5, ¿cuál es el valor del coseno de ese ángulo?",
+                options: ["4/5", "3/5", "5/3"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es el valor de tan(45°)?",
+                options: ["0", "1", "√3"],
+                correct: 1,
+                topic: "Trigonometría"
+            },
+            {
+                text: "En un triángulo rectángulo, si sen(θ) = 3/5, ¿cuál es el valor de cos(θ)?",
+                options: ["4/5", "3/4", "5/4"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es el valor de cos(60°)?",
+                options: ["1/2", "√3/2", "√2/2"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "Si tan(θ) = 1, ¿cuál es el valor de θ en grados?",
+                options: ["30°", "45°", "60°"],
+                correct: 1,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es el valor de sen(90°)?",
+                options: ["0", "1", "No está definido"],
+                correct: 1,
+                topic: "Trigonometría"
+            },
+            {
+                text: "En un triángulo rectángulo, si el cateto adyacente mide 4 y la hipotenusa mide 5, ¿cuál es el valor de sen(θ)?",
+                options: ["3/5", "4/5", "5/4"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es el valor de cos(0°)?",
+                options: ["0", "1", "-1"],
+                correct: 1,
+                topic: "Trigonometría"
+            },
+            {
+                text: "Si sen(θ) = 1/2, ¿cuál es un posible valor de θ?",
+                options: ["30°", "45°", "60°"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es el valor de tan(60°)?",
+                options: ["1", "√3", "1/√3"],
+                correct: 1,
+                topic: "Trigonometría"
+            },
+            {
+                text: "En un triángulo rectángulo, si los catetos miden 3 y 4, ¿cuánto mide la hipotenusa?",
+                options: ["5", "6", "7"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es el valor de sen(60°)?",
+                options: ["1/2", "√3/2", "√2/2"],
+                correct: 1,
+                topic: "Trigonometría"
+            },
+            {
+                text: "Si cos(θ) = 1/2, ¿cuál es un posible valor de θ?",
+                options: ["30°", "45°", "60°"],
+                correct: 2,
+                topic: "Trigonometría"
+            },
+            {
+                text: "¿Cuál es la identidad trigonométrica fundamental?",
+                options: ["sen²θ + cos²θ = 1", "sen²θ - cos²θ = 1", "tan²θ + 1 = sec²θ"],
+                correct: 0,
+                topic: "Trigonometría"
+            },
+            // Sistemas de ecuaciones 2x2 (8 preguntas)
+            {
+                text: "Resuelve el sistema: x + y = 5, x - y = 1",
+                options: ["x=3, y=2", "x=2, y=3", "x=4, y=1"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: 2x + y = 7, x - y = 2",
+                options: ["x=3, y=1", "x=2, y=3", "x=4, y=-1"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: 3x + 2y = 12, x - y = 1",
+                options: ["x=2.8, y=1.8", "x=3, y=2", "x=4, y=0"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: x + 2y = 8, 2x - y = 1",
+                options: ["x=2, y=3", "x=3, y=2.5", "x=4, y=2"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: 2x + 3y = 13, x - 2y = -4",
+                options: ["x=2, y=3", "x=3, y=2", "x=1, y=4"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: 4x - y = 5, 2x + y = 7",
+                options: ["x=2, y=3", "x=3, y=7", "x=1, y=-1"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: 5x + 2y = 16, 3x - 4y = 20",
+                options: ["x=4, y=-2", "x=2, y=3", "x=3, y=0.5"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            {
+                text: "Resuelve el sistema: 3x + 5y = 19, 2x - 3y = 0",
+                options: ["x=3, y=2", "x=2, y=3", "x=4, y=1.4"],
+                correct: 0,
+                topic: "Sistemas 2x2"
+            },
+            // Sistemas de ecuaciones 3x3 (7 preguntas)
+            {
+                text: "Resuelve: x + y + z = 6, x - y + z = 2, x + y - z = 0",
+                options: ["x=2, y=2, z=2", "x=3, y=2, z=1", "x=1, y=3, z=2"],
+                correct: 0,
+                topic: "Sistemas 3x3"
+            },
+            {
+                text: "Resuelve: 2x + y + z = 7, x + 2y + z = 8, x + y + 2z = 9",
+                options: ["x=1, y=2, z=3", "x=2, y=2, z=2", "x=3, y=1, z=2"],
+                correct: 0,
+                topic: "Sistemas 3x3"
+            },
+            {
+                text: "Resuelve: x + y = 5, y + z = 7, x + z = 6",
+                options: ["x=2, y=3, z=4", "x=3, y=2, z=5", "x=4, y=1, z=6"],
+                correct: 0,
+                topic: "Sistemas 3x3"
+            },
+            {
+                text: "Resuelve: x + 2y - z = 3, 2x - y + z = 5, -x + y + 2z = 4",
+                options: ["x=2, y=1, z=1", "x=1, y=2, z=3", "x=3, y=2, z=4"],
+                correct: 0,
+                topic: "Sistemas 3x3"
+            },
+            {
+                text: "Resuelve: 3x + 2y + z = 10, x + 3y + 2z = 14, 2x + y + 3z = 13",
+                options: ["x=1, y=2, z=3", "x=2, y=1, z=3", "x=3, y=2, z=1"],
+                correct: 0,
+                topic: "Sistemas 3x3"
+            },
+            {
+                text: "Resuelve: x + y + z = 10, 2x - y + z = 5, x + 2y - z = 2",
+                options: ["x=2, y=3, z=5", "x=3, y=2, z=5", "x=5, y=2, z=3"],
+                correct: 1,
+                topic: "Sistemas 3x3"
+            },
+            {
+                text: "Resuelve: 2x + 3y - z = 12, x - 2y + 3z = 7, 3x + y + 2z = 15",
+                options: ["x=3, y=2, z=1", "x=2, y=3, z=1", "x=1, y=4, z=2"],
+                correct: 1,
+                topic: "Sistemas 3x3"
+            }
+        ];
+
+        // Estado de la aplicación
+        let currentStudent = {
+            name: '',
+            email: '',
+            attempts: [],
+            currentAttempt: 1,
+            maxAttempts: 3
+        };
+
+        let currentQuestion = 0;
+        let answers = new Array(questions.length).fill(null);
+        let attempts = new Array(questions.length).fill(0);
+        let questionStatus = new Array(questions.length).fill('pending');
+        let timer;
+        let timeLeft = 3600;
+        let examFinished = false;
+        let attemptStartTime;
+
+        function registerStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            const email = document.getElementById('studentEmail').value.trim();
+
+            if (!name || !email) {
+                alert('Por favor, ingresa tu nombre y correo electrónico');
+                return;
+            }
+
+            if (!email.includes('@') || !email.includes('.')) {
+                alert('Por favor, ingresa un correo electrónico válido');
+                return;
+            }
+
+            // Cargar historial del estudiante
+            const storageKey = `student_${email}`;
+            const stored = localStorage.getItem(storageKey);
+            
+            if (stored) {
+                currentStudent = JSON.parse(stored);
+            } else {
+                currentStudent = {
+                    name: name,
+                    email: email,
+                    attempts: [],
+                    currentAttempt: 1,
+                    maxAttempts: 3
+                };
+            }
+
+            // Verificar si puede intentar
+            if (currentStudent.attempts.length >= 3) {
+                alert('Ya has completado los 3 intentos permitidos. No puedes realizar más intentos.');
+                return;
+            }
+
+            currentStudent.currentAttempt = currentStudent.attempts.length + 1;
+            
+            // Guardar en localStorage
+            localStorage.setItem(storageKey, JSON.stringify(currentStudent));
+
+            // Mostrar examen
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('examContent').style.display = 'block';
+            
+            // Actualizar UI
+            updateAttemptsDisplay();
+            
+            // Iniciar nuevo intento
+            resetAttempt();
+            startTimer();
+            renderQuestions();
+        }
+
+        function resetAttempt() {
+            answers = new Array(questions.length).fill(null);
+            attempts = new Array(questions.length).fill(0);
+            questionStatus = new Array(questions.length).fill('pending');
+            currentQuestion = 0;
+            timeLeft = 3600;
+            examFinished = false;
+            attemptStartTime = new Date();
+            
+            if (currentQuestion < questions.length) {
+                document.querySelectorAll('.question').forEach(q => q.style.display = 'none');
+                const firstQuestion = document.getElementById('q0');
+                if (firstQuestion) firstQuestion.style.display = 'block';
+            }
+            
+            updateNavigationButtons();
+            updateProgress();
+            updateAttemptsDisplay();
+        }
+
+        function updateAttemptsDisplay() {
+            document.getElementById('currentAttempt').textContent = currentStudent.currentAttempt;
+            document.getElementById('attemptsLeft').textContent = 3 - currentStudent.attempts.length;
+            
+            const attemptsBox = document.getElementById('attemptsBox');
+            if (currentStudent.attempts.length >= 2) {
+                attemptsBox.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+            } else if (currentStudent.attempts.length >= 1) {
+                attemptsBox.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
+            }
+        }
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                if (!examFinished) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        finishAttempt();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.id = `q${index}`;
+                questionDiv.style.display = index === 0 ? 'block' : 'none';
+                
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Pregunta ${index + 1} - ${q.topic}</div>
+                        <div class="attempts-badge" id="badge-${index}">
+                            Intentos: ${attempts[index]}/3
+                        </div>
+                    </div>
+                    <div class="question-text">${index + 1}. ${q.text}</div>
+                    <div class="options" id="options-${index}">
+                        ${q.options.map((opt, optIndex) => {
+                            const isSelected = answers[index] === optIndex;
+                            const isCorrect = optIndex === q.correct;
+                            let optionClass = 'option';
+                            
+                            if (questionStatus[index] === 'correct' && isCorrect) {
+                                optionClass += ' correct-answer';
+                            } else if (questionStatus[index] === 'incorrect' && isSelected) {
+                                optionClass += ' incorrect-answer';
+                            } else if (isSelected) {
+                                optionClass += ' selected';
+                            }
+                            
+                            if (questionStatus[index] === 'correct' || attempts[index] >= 3) {
+                                optionClass += ' disabled';
+                            }
+                            
+                            return `
+                                <label class="${optionClass}">
+                                    <input type="radio" name="q${index}" value="${optIndex}" 
+                                        ${isSelected ? 'checked' : ''} 
+                                        ${(questionStatus[index] === 'correct' || attempts[index] >= 3) ? 'disabled' : ''}
+                                        onchange="handleAnswer(${index}, ${optIndex})">
+                                    ${String.fromCharCode(65 + optIndex)}. ${opt}
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div id="feedback-${index}" class="feedback-message"></div>
+                `;
+                
+                container.appendChild(questionDiv);
+            });
+            
+            updateFeedback(currentQuestion);
+        }
+
+        function handleAnswer(questionIndex, optionIndex) {
+            if (questionStatus[questionIndex] === 'correct' || attempts[questionIndex] >= 3 || examFinished) {
+                return;
+            }
+
+            const isCorrect = optionIndex === questions[questionIndex].correct;
+            
+            attempts[questionIndex]++;
+            
+            if (isCorrect) {
+                questionStatus[questionIndex] = 'correct';
+                answers[questionIndex] = optionIndex;
+                showFeedback(questionIndex, '¡Correcto! Bien hecho.', 'correct');
+            } else {
+                answers[questionIndex] = optionIndex;
+                
+                if (attempts[questionIndex] >= 3) {
+                    questionStatus[questionIndex] = 'incorrect';
+                    showFeedback(questionIndex, `Incorrecto. Has agotado tus 3 intentos. La respuesta correcta es ${String.fromCharCode(65 + questions[questionIndex].correct)}.`, 'incorrect');
+                } else {
+                    const attemptsLeft = 3 - attempts[questionIndex];
+                    showFeedback(questionIndex, `Incorrecto. Te quedan ${attemptsLeft} intento${attemptsLeft !== 1 ? 's' : ''}.`, 'info');
+                }
+            }
+            
+            updateQuestionDisplay(questionIndex);
+            updateProgress();
+        }
+
+        function showFeedback(questionIndex, message, type) {
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+            feedbackDiv.textContent = message;
+            feedbackDiv.className = `feedback-message feedback-${type}`;
+        }
+
+        function updateQuestionDisplay(questionIndex) {
+            const optionsContainer = document.getElementById(`options-${questionIndex}`);
+            const q = questions[questionIndex];
+            
+            const labels = optionsContainer.querySelectorAll('.option');
+            labels.forEach((label, idx) => {
+                const radio = label.querySelector('input');
+                const isSelected = answers[questionIndex] === idx;
+                const isCorrect = idx === q.correct;
+                
+                label.classList.remove('correct-answer', 'incorrect-answer', 'selected', 'disabled');
+                
+                if (questionStatus[questionIndex] === 'correct') {
+                    if (isCorrect) {
+                        label.classList.add('correct-answer');
+                    }
+                    radio.disabled = true;
+                    label.classList.add('disabled');
+                } else if (questionStatus[questionIndex] === 'incorrect') {
+                    if (isCorrect) {
+                        label.classList.add('correct-answer');
+                    } else if (isSelected) {
+                        label.classList.add('incorrect-answer');
+                    }
+                    radio.disabled = true;
+                    label.classList.add('disabled');
+                } else if (attempts[questionIndex] >= 3) {
+                    radio.disabled = true;
+                    label.classList.add('disabled');
+                } else {
+                    radio.disabled = false;
+                    if (isSelected) {
+                        label.classList.add('selected');
+                    }
+                }
+            });
+            
+            const badge = document.getElementById(`badge-${questionIndex}`);
+            if (badge) {
+                badge.textContent = `Intentos: ${attempts[questionIndex]}/3`;
+                if (attempts[questionIndex] >= 3) {
+                    badge.style.backgroundColor = '#dc3545';
+                } else {
+                    badge.style.backgroundColor = '#e74c3c';
+                }
+            }
+        }
+
+        function updateFeedback(questionIndex) {
+            const q = questions[questionIndex];
+            
+            if (questionStatus[questionIndex] === 'correct') {
+                showFeedback(questionIndex, '¡Correcto! Bien hecho.', 'correct');
+            } else if (questionStatus[questionIndex] === 'incorrect') {
+                showFeedback(questionIndex, `Has agotado tus 3 intentos. La respuesta correcta es ${String.fromCharCode(65 + q.correct)}.`, 'incorrect');
+            } else if (attempts[questionIndex] > 0) {
+                const attemptsLeft = 3 - attempts[questionIndex];
+                showFeedback(questionIndex, `Te quedan ${attemptsLeft} intento${attemptsLeft !== 1 ? 's' : ''}.`, 'info');
+            } else {
+                const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+                if (feedbackDiv) {
+                    feedbackDiv.textContent = '';
+                    feedbackDiv.className = 'feedback-message';
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                document.getElementById(`q${currentQuestion}`).style.display = 'none';
+                currentQuestion++;
+                document.getElementById(`q${currentQuestion}`).style.display = 'block';
+                updateNavigationButtons();
+                updateFeedback(currentQuestion);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                document.getElementById(`q${currentQuestion}`).style.display = 'none';
+                currentQuestion--;
+                document.getElementById(`q${currentQuestion}`).style.display = 'block';
+                updateNavigationButtons();
+                updateFeedback(currentQuestion);
+            }
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').disabled = currentQuestion === questions.length - 1;
+        }
+
+        function updateProgress() {
+            const answered = attempts.filter(a => a > 0).length;
+            const progress = (answered / questions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        function calculateResults() {
+            let correct = 0;
+            let incorrect = 0;
+            let unanswered = 0;
+            let totalAttempts = 0;
+            
+            const topicResults = {
+                'Trigonometría': { total: 0, correct: 0, attempts: 0 },
+                'Sistemas 2x2': { total: 0, correct: 0, attempts: 0 },
+                'Sistemas 3x3': { total: 0, correct: 0, attempts: 0 }
+            };
+
+            questions.forEach((q, index) => {
+                topicResults[q.topic].total++;
+                topicResults[q.topic].attempts += attempts[index];
+                totalAttempts += attempts[index];
+                
+                if (questionStatus[index] === 'correct') {
+                    correct++;
+                    topicResults[q.topic].correct++;
+                } else if (questionStatus[index] === 'incorrect') {
+                    incorrect++;
+                } else {
+                    unanswered++;
+                }
+            });
+
+            return { correct, incorrect, unanswered, totalAttempts, topicResults };
+        }
+
+        async function finishAttempt() {
+            examFinished = true;
+            clearInterval(timer);
+            
+            const results = calculateResults();
+            const totalScore = (results.correct / questions.length * 100).toFixed(1);
+            
+            // Guardar este intento
+            const attemptData = {
+                attemptNumber: currentStudent.currentAttempt,
+                date: new Date().toLocaleString(),
+                timeUsed: formatTime(3600 - timeLeft),
+                results: results,
+                totalScore: totalScore,
+                answers: [...answers],
+                attempts: [...attempts],
+                questionStatus: [...questionStatus]
+            };
+            
+            currentStudent.attempts.push(attemptData);
+            
+            // Guardar en localStorage
+            const storageKey = `student_${currentStudent.email}`;
+            localStorage.setItem(storageKey, JSON.stringify(currentStudent));
+            
+            // Enviar por email
+            await sendResultsByEmail(attemptData);
+            
+            // Mostrar resultados
+            showAttemptResults(attemptData);
+        }
+
+        async function sendResultsByEmail(attemptData) {
+            const indicator = document.getElementById('savingIndicator');
+            indicator.style.display = 'block';
+            indicator.textContent = '📧 Enviando resultados al profesor...';
+            indicator.style.backgroundColor = '#3498db';
+
+            try {
+                // Aquí iría la integración con EmailJS
+                // Por ahora simulamos el envío
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                indicator.textContent = '✓ Resultados enviados al profesor';
+                indicator.style.backgroundColor = '#27ae60';
+                
+                // También guardamos en una copia local
+                saveLocalCopy(attemptData);
+                
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                indicator.textContent = '✗ Error al enviar. Guardando copia local...';
+                indicator.style.backgroundColor = '#e74c3c';
+                
+                // Guardar copia local como respaldo
+                saveLocalCopy(attemptData);
+                
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function saveLocalCopy(attemptData) {
+            const results = {
+                estudiante: currentStudent.name,
+                email: currentStudent.email,
+                intento: attemptData.attemptNumber,
+                fecha: attemptData.date,
+                puntaje: attemptData.totalScore + '%',
+                correctas: attemptData.results.correct,
+                incorrectas: attemptData.results.incorrect,
+                sin_responder: attemptData.results.unanswered,
+                intentos_totales: attemptData.results.totalAttempts
+            };
+            
+            // Guardar en localStorage como respaldo
+            const backupKey = `backup_${currentStudent.email}_${Date.now()}`;
+            localStorage.setItem(backupKey, JSON.stringify(results));
+        }
+
+        function showAttemptResults(attemptData) {
+            document.getElementById('modalAttemptNumber').textContent = attemptData.attemptNumber;
+            
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Estudiante:</span> ${currentStudent.name}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Email:</span> ${currentStudent.email}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Fecha:</span> ${attemptData.date}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Tiempo utilizado:</span> ${attemptData.timeUsed}
+                </div>
+                <div style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
+                    <h3 style="margin-bottom: 10px;">Puntuación Total</h3>
+                    <div style="font-size: 48px; font-weight: bold;">${attemptData.totalScore}%</div>
+                    <div>${attemptData.results.correct} correctas | ${attemptData.results.incorrect} incorrectas | ${attemptData.results.unanswered} sin responder</div>
+                </div>
+                <div style="margin: 20px 0;">
+                    <h3>Desglose por tema:</h3>
+                    ${Object.entries(attemptData.results.topicResults).map(([topic, data]) => `
+                        <div class="result-item">
+                            <span class="result-label">${topic}:</span> 
+                            ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)
+                            <br><small>Intentos totales: ${data.attempts}</small>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('resultsModal').style.display = 'flex';
+        }
+
+        function showHistory() {
+            const historyContent = document.getElementById('historyContent');
+            
+            if (currentStudent.attempts.length === 0) {
+                historyContent.innerHTML = '<p>No hay intentos previos.</p>';
+            } else {
+                historyContent.innerHTML = currentStudent.attempts.map((attempt, index) => `
+                    <div class="result-item" style="border-left: 5px solid ${attempt.totalScore >= 60 ? '#27ae60' : '#e74c3c'};">
+                        <h4>Intento #${attempt.attemptNumber} - ${attempt.date}</h4>
+                        <p><strong>Puntuación:</strong> ${attempt.totalScore}%</p>
+                        <p><strong>Correctas:</strong> ${attempt.results.correct}/${questions.length}</p>
+                        <p><strong>Tiempo:</strong> ${attempt.timeUsed}</p>
+                        <button class="btn-primary" onclick="viewAttemptDetails(${index})" style="margin-top: 10px; padding: 5px 15px;">Ver detalles</button>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('historyModal').style.display = 'flex';
+        }
+
+        function viewAttemptDetails(attemptIndex) {
+            closeHistoryModal();
+            showAttemptResults(currentStudent.attempts[attemptIndex]);
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function closeModal() {
+            document.getElementById('resultsModal').style.display = 'none';
+            
+            // Verificar si quedan intentos
+            if (currentStudent.attempts.length >= 3) {
+                alert('Has completado los 3 intentos. Gracias por participar.');
+                location.reload();
+            } else {
+                if (confirm('¿Quieres intentarlo de nuevo? Te quedan ' + (3 - currentStudent.attempts.length) + ' intentos.')) {
+                    currentStudent.currentAttempt = currentStudent.attempts.length + 1;
+                    localStorage.setItem(`student_${currentStudent.email}`, JSON.stringify(currentStudent));
+                    resetAttempt();
+                    startTimer();
+                    renderQuestions();
+                    updateAttemptsDisplay();
+                }
+            }
+        }
+
+        function downloadResults() {
+            const attemptData = currentStudent.attempts[currentStudent.attempts.length - 1];
+            
+            let content = `RESULTADOS SIMULACRO EXANI II\n`;
+            content += `===============================\n\n`;
+            content += `Estudiante: ${currentStudent.name}\n`;
+            content += `Email: ${currentStudent.email}\n`;
+            content += `Intento: ${attemptData.attemptNumber}/3\n`;
+            content += `Fecha: ${attemptData.date}\n`;
+            content += `Tiempo utilizado: ${attemptData.timeUsed}\n\n`;
+            
+            content += `Puntuación total: ${attemptData.totalScore}%\n`;
+            content += `Respuestas correctas: ${attemptData.results.correct}\n`;
+            content += `Respuestas incorrectas: ${attemptData.results.incorrect}\n`;
+            content += `Sin responder: ${attemptData.results.unanswered}\n`;
+            content += `Total de intentos en preguntas: ${attemptData.results.totalAttempts}\n\n`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `resultados_${currentStudent.name}_intento${attemptData.attemptNumber}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
