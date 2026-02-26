@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Exani II - Múltiples Exámenes</title>
+    <title>Simulador Exani II - 3 Exámenes</title>
     <!-- EmailJS Library -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
@@ -179,6 +179,15 @@
             font-size: 14px;
         }
 
+        .answered-badge {
+            background-color: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
         .question-text {
             font-size: 16px;
             margin-bottom: 15px;
@@ -203,7 +212,7 @@
             transition: all 0.3s;
         }
 
-        .option:hover:not(.disabled):not(.answered) {
+        .option:hover:not(.answered) {
             background-color: #e8f0fe;
             border-color: #667eea;
         }
@@ -230,13 +239,6 @@
 
         .option.answered {
             cursor: not-allowed;
-            opacity: 0.9;
-        }
-
-        .option.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background-color: #e9ecef;
         }
 
         .feedback-message {
@@ -257,12 +259,6 @@
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-        }
-
-        .feedback-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
         }
 
         .progress-bar {
@@ -322,6 +318,11 @@
 
         .btn-success {
             background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             color: white;
         }
 
@@ -415,29 +416,7 @@
             border-radius: 10px;
         }
 
-        .answered-badge {
-            background-color: #27ae60;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
         @media (max-width: 768px) {
-            .student-info {
-                padding: 15px;
-            }
-            
-            .container {
-                padding: 15px;
-            }
-            
-            button {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-
             .exam-buttons {
                 flex-direction: column;
             }
@@ -449,38 +428,38 @@
 
     <div class="container">
         <h1>📚 Simulador Exani II</h1>
-        <h2>Múltiples Exámenes de Práctica</h2>
+        <h2>3 Exámenes de Práctica</h2>
         
         <div class="exam-selector">
-            <h3>📌 Selecciona el examen que deseas practicar:</h3>
+            <h3>📌 Selecciona el examen:</h3>
             <div class="exam-buttons">
-                <button class="exam-btn active" onclick="selectExam(0)" id="exam0">📐 Examen 1: Trigonometría y Sistemas</button>
-                <button class="exam-btn" onclick="selectExam(1)" id="exam1">🔢 Examen 2: Productos Notables y Factorización</button>
+                <button class="exam-btn active" onclick="selectExam(0)" id="exam0">📐 Examen 1: Trigonometría</button>
+                <button class="exam-btn" onclick="selectExam(1)" id="exam1">🔢 Examen 2: Productos Notables</button>
+                <button class="exam-btn" onclick="selectExam(2)" id="exam2">📊 Examen 3: Probabilidad</button>
             </div>
         </div>
         
         <div class="student-info" id="registrationForm">
             <h3>📋 Registro del Estudiante</h3>
-            <input type="text" id="studentName" placeholder="Nombre completo del estudiante" required>
+            <input type="text" id="studentName" placeholder="Nombre completo" required>
             <input type="email" id="studentEmail" placeholder="Correo electrónico" required>
-            <button class="btn-success" onclick="registerStudent()" style="width: 100%;">Comenzar Simulacro</button>
+            <button class="btn-success" onclick="registerStudent()" style="width: 100%;">Comenzar</button>
         </div>
 
         <div id="examContent" style="display: none;">
-            <div class="exam-title" id="examTitle">Examen 1: Trigonometría y Sistemas de Ecuaciones</div>
+            <div class="exam-title" id="examTitle">Examen 1: Trigonometría</div>
             
             <div class="attempts-box" id="attemptsBox">
                 <h3>🎯 Intento #<span id="currentAttempt">1</span> de 3</h3>
                 <div class="attempt-count" id="attemptsLeft">3</div>
-                <p>Intentos restantes para completar el examen</p>
+                <p>Intentos restantes</p>
             </div>
 
             <div class="timer" id="timer">01:00:00</div>
 
-            <div class="instructions" id="attemptInstructions">
-                <strong>📌 Instrucciones:</strong> Tienes UNA SOLA OPORTUNIDAD por pregunta. 
-                Al seleccionar una respuesta, verás inmediatamente si es correcta o incorrecta.
-                Las preguntas incorrectas mostrarán la respuesta correcta.
+            <div class="instructions">
+                <strong>📌 Una sola oportunidad por pregunta.</strong> 
+                Al responder verás la respuesta correcta.
             </div>
 
             <div class="progress-bar">
@@ -495,24 +474,24 @@
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-success" onclick="finishAttempt()" style="flex: 2;" id="finishBtn">✅ Finalizar este Intento</button>
-                <button class="btn-warning" onclick="showHistory()" style="flex: 1;" id="historyBtn">📊 Ver mi historial</button>
+                <button class="btn-success" onclick="finishAttempt()" style="flex: 2;">✅ Finalizar</button>
+                <button class="btn-warning" onclick="showHistory()" style="flex: 1;">📊 Historial</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="resultsModal">
         <div class="modal-content">
-            <h2 style="color: #333; margin-bottom: 20px;">Resultados del Intento #<span id="modalAttemptNumber"></span></h2>
+            <h2>Resultados Intento #<span id="modalAttemptNumber"></span></h2>
             <div id="resultsContent"></div>
-            <button class="btn-primary download-btn" onclick="downloadResults()">📥 Descargar Resultados</button>
+            <button class="btn-primary download-btn" onclick="downloadResults()">📥 Descargar</button>
             <button class="btn-secondary" onclick="closeModal()">Cerrar</button>
         </div>
     </div>
 
     <div class="modal" id="historyModal">
         <div class="modal-content">
-            <h2 style="color: #333; margin-bottom: 20px;">📊 Historial de Intentos</h2>
+            <h2>📊 Historial</h2>
             <div id="historyContent"></div>
             <button class="btn-secondary" onclick="closeHistoryModal()">Cerrar</button>
         </div>
@@ -520,7 +499,7 @@
 
     <script>
         // =============================================
-        // CONFIGURACIÓN DE EMAILJS - TUS DATOS
+        // TU CONFIGURACIÓN DE EMAILJS
         // =============================================
         const EMAIL_CONFIG = {
             serviceId: 'service_6svkub7',
@@ -528,183 +507,268 @@
             userId: 'I9nGobBxGUrKY2k16',
             teacherEmail: 'servicioseducativosoxford@gmail.com'
         };
-
-        // Inicializar EmailJS con tu Public Key
         emailjs.init(EMAIL_CONFIG.userId);
-        // =============================================
 
         // =============================================
-        // EXÁMENES DISPONIBLES
+        // LOS 3 EXÁMENES COMPLETOS
         // =============================================
         const exams = [
-            // =============================================
-// EXÁMENES DISPONIBLES - CON 3 EXÁMENES
-// =============================================
-    const exams = [
-    // EXAMEN 1 - TRIGONOMETRÍA Y SISTEMAS
-    {
-        name: "Examen 1: Trigonometría y Sistemas de Ecuaciones",
-        description: "Trigonometría, Sistemas 2x2 y Sistemas 3x3",
-        questions: [
-            // Primera pregunta (para abreviar, mantén tus preguntas originales aquí)
+            // EXAMEN 1: TRIGONOMETRÍA (10 preguntas)
             {
-                text: "¿Cuál es el valor de sen(30°)?",
-                options: ["1/2", "√3/2", "√2/2"],
-                correct: 0,
-                topic: "Trigonometría",
-                explanation: "El seno de 30° es 1/2"
+                name: "Examen 1: Trigonometría",
+                questions: [
+                    {
+                        text: "¿Cuál es el valor de sen(30°)?",
+                        options: ["1/2", "√3/2", "√2/2"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "El seno de 30° es 1/2"
+                    },
+                    {
+                        text: "¿Cuál es el valor de cos(60°)?",
+                        options: ["1/2", "√3/2", "√2/2"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "El coseno de 60° es 1/2"
+                    },
+                    {
+                        text: "¿Cuál es el valor de tan(45°)?",
+                        options: ["0", "1", "√3"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "tan(45°) = 1"
+                    },
+                    {
+                        text: "¿Cuál es el valor de sen(90°)?",
+                        options: ["0", "1", "No definido"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "sen(90°) = 1"
+                    },
+                    {
+                        text: "¿Cuál es el valor de cos(0°)?",
+                        options: ["0", "1", "-1"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "cos(0°) = 1"
+                    },
+                    {
+                        text: "Resuelve: x + y = 5, x - y = 1",
+                        options: ["x=3,y=2", "x=2,y=3", "x=4,y=1"],
+                        correct: 0,
+                        topic: "Sistemas",
+                        explanation: "Sumando: 2x=6 → x=3, y=2"
+                    },
+                    {
+                        text: "Resuelve: 2x + y = 7, x - y = 2",
+                        options: ["x=3,y=1", "x=2,y=3", "x=4,y=-1"],
+                        correct: 0,
+                        topic: "Sistemas",
+                        explanation: "Sumando: 3x=9 → x=3, y=1"
+                    },
+                    {
+                        text: "Resuelve: x + y + z = 6, x - y + z = 2",
+                        options: ["x=2,y=2,z=2", "x=3,y=2,z=1", "x=1,y=3,z=2"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "La solución es x=2, y=2, z=2"
+                    },
+                    {
+                        text: "Resuelve: x + y = 5, y + z = 7, x + z = 6",
+                        options: ["x=2,y=3,z=4", "x=3,y=2,z=5", "x=4,y=1,z=6"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "Sumando: 2(x+y+z)=18 → x+y+z=9, luego x=2,y=3,z=4"
+                    },
+                    {
+                        text: "En un triángulo rectángulo, cateto opuesto=3, hipotenusa=5, ¿coseno?",
+                        options: ["4/5", "3/5", "5/3"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "Cateto adyacente=4, cos=4/5"
+                    }
+                ]
+            },
+            
+            // EXAMEN 2: PRODUCTOS NOTABLES (10 preguntas)
+            {
+                name: "Examen 2: Productos Notables",
+                questions: [
+                    {
+                        text: "¿(a + b)²?",
+                        options: ["a²+2ab+b²", "a²-2ab+b²", "a²+b²"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "(a+b)² = a²+2ab+b²"
+                    },
+                    {
+                        text: "¿(a - b)²?",
+                        options: ["a²-2ab+b²", "a²+2ab+b²", "a²-b²"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "(a-b)² = a²-2ab+b²"
+                    },
+                    {
+                        text: "¿(a + b)(a - b)?",
+                        options: ["a²-b²", "a²+b²", "a²+2ab+b²"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "Diferencia de cuadrados: a²-b²"
+                    },
+                    {
+                        text: "¿(x + 3)(x - 3)?",
+                        options: ["x²-9", "x²+9", "x²-6x+9"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "x²-9"
+                    },
+                    {
+                        text: "¿(2x + 1)²?",
+                        options: ["4x²+4x+1", "4x²+2x+1", "4x²+1"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "4x²+4x+1"
+                    },
+                    {
+                        text: "Factoriza: x² - 9",
+                        options: ["(x-3)(x+3)", "(x-3)²", "(x+3)²"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Diferencia de cuadrados"
+                    },
+                    {
+                        text: "Factoriza: x² + 6x + 9",
+                        options: ["(x+3)²", "(x-3)²", "(x+3)(x-3)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Trinomio cuadrado perfecto"
+                    },
+                    {
+                        text: "Factoriza: x² + 5x + 6",
+                        options: ["(x+2)(x+3)", "(x+1)(x+6)", "(x+5)(x+1)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "2×3=6, 2+3=5"
+                    },
+                    {
+                        text: "Si f(x)=2x+3, ¿f(2)?",
+                        options: ["7", "5", "4"],
+                        correct: 0,
+                        topic: "Funciones",
+                        explanation: "2(2)+3=7"
+                    },
+                    {
+                        text: "Si f(x)=x²-2x, ¿f(3)?",
+                        options: ["3", "6", "9"],
+                        correct: 0,
+                        topic: "Funciones",
+                        explanation: "9-6=3"
+                    }
+                ]
+            },
+            
+            // EXAMEN 3: PROBABILIDAD (10 preguntas) - NUEVO
+            {
+                name: "Examen 3: Probabilidad",
+                questions: [
+                    {
+                        text: "¿Probabilidad de número par en un dado?",
+                        options: ["1/2", "1/3", "1/6"],
+                        correct: 0,
+                        topic: "Probabilidad",
+                        explanation: "Pares: 2,4,6 → 3/6 = 1/2"
+                    },
+                    {
+                        text: "¿Probabilidad de 3 águilas en 3 monedas?",
+                        options: ["1/8", "1/4", "1/2"],
+                        correct: 0,
+                        topic: "Probabilidad",
+                        explanation: "(1/2)³ = 1/8"
+                    },
+                    {
+                        text: "¿Probabilidad de sacar un as de 52 cartas?",
+                        options: ["1/13", "1/52", "4/13"],
+                        correct: 0,
+                        topic: "Probabilidad",
+                        explanation: "4 ases/52 = 1/13"
+                    },
+                    {
+                        text: "Datos: 2,4,6,8,10. ¿Media?",
+                        options: ["6", "5", "7"],
+                        correct: 0,
+                        topic: "Estadística",
+                        explanation: "(2+4+6+8+10)/5 = 6"
+                    },
+                    {
+                        text: "Datos: 3,5,7,9,11. ¿Mediana?",
+                        options: ["7", "5", "9"],
+                        correct: 0,
+                        topic: "Estadística",
+                        explanation: "Valor central = 7"
+                    },
+                    {
+                        text: "¿Moda de 2,2,3,4,4,4,5?",
+                        options: ["4", "2", "3"],
+                        correct: 0,
+                        topic: "Estadística",
+                        explanation: "El 4 aparece 3 veces"
+                    },
+                    {
+                        text: "¿P(5,3) permutaciones?",
+                        options: ["60", "20", "10"],
+                        correct: 0,
+                        topic: "Combinatoria",
+                        explanation: "5×4×3 = 60"
+                    },
+                    {
+                        text: "¿C(4,2) combinaciones?",
+                        options: ["6", "12", "4"],
+                        correct: 0,
+                        topic: "Combinatoria",
+                        explanation: "6 formas de elegir 2 de 4"
+                    },
+                    {
+                        text: "Si P(A)=0.5, P(B)=0.4, P(A∩B)=0.2, ¿P(A|B)?",
+                        options: ["0.5", "0.4", "0.2"],
+                        correct: 0,
+                        topic: "Probabilidad",
+                        explanation: "0.2/0.4 = 0.5"
+                    },
+                    {
+                        text: "30 estudiantes, 18 mujeres. ¿P(hombre)?",
+                        options: ["0.4", "0.6", "0.3"],
+                        correct: 0,
+                        topic: "Probabilidad",
+                        explanation: "12/30 = 0.4"
+                    }
+                ]
             }
-            // ... (aquí van todas tus otras preguntas del examen 1)
-        ]
-    },
-    
-    // EXAMEN 2 - PRODUCTOS NOTABLES Y FACTORIZACIÓN
-    {
-        name: "Examen 2: Productos Notables, Factorización y Álgebra de Funciones",
-        description: "Productos Notables, Factorización y Álgebra de Funciones",
-        questions: [
-            // Primera pregunta (para abreviar, mantén tus preguntas originales aquí)
-            {
-                text: "¿Cuál es el resultado de (a + b)²?",
-                options: ["a² + 2ab + b²", "a² - 2ab + b²", "a² + b²"],
-                correct: 0,
-                topic: "Productos Notables",
-                explanation: "El cuadrado de un binomio suma es: (a+b)² = a² + 2ab + b²"
-            }
-            // ... (aquí van todas tus otras preguntas del examen 2)
-        ]
-    },
-    
-    // EXAMEN 3 - PROBABILIDAD Y ESTADÍSTICA (NUEVO)
-    {
-        name: "Examen 3: Probabilidad y Estadística",
-        description: "Probabilidad, Estadística descriptiva",
-        questions: [
-            {
-                text: "¿Cuál es la probabilidad de obtener un número par al lanzar un dado?",
-                options: ["1/2", "1/3", "1/6"],
-                correct: 0,
-                topic: "Probabilidad Básica",
-                explanation: "Los números pares son 2,4,6: 3/6 = 1/2"
-            },
-            {
-                text: "Si se lanza una moneda 3 veces, ¿probabilidad de 3 águilas?",
-                options: ["1/8", "1/4", "1/2"],
-                correct: 0,
-                topic: "Probabilidad Básica",
-                explanation: "(1/2)³ = 1/8"
-            },
-            {
-                text: "En una baraja de 52 cartas, ¿probabilidad de sacar un as?",
-                options: ["1/13", "1/52", "4/13"],
-                correct: 0,
-                topic: "Probabilidad Básica",
-                explanation: "4 ases de 52: 4/52 = 1/13"
-            },
-            {
-                text: "Datos: 2, 4, 6, 8, 10. ¿Cuál es la media?",
-                options: ["6", "5", "7"],
-                correct: 0,
-                topic: "Estadística",
-                explanation: "(2+4+6+8+10)/5 = 30/5 = 6"
-            },
-            {
-                text: "¿Cuál es la mediana de: 3, 5, 7, 9, 11?",
-                options: ["7", "5", "9"],
-                correct: 0,
-                topic: "Estadística",
-                explanation: "El valor central es 7"
-            },
-            {
-                text: "Datos: 2, 2, 3, 4, 4, 4, 5. ¿Cuál es la moda?",
-                options: ["4", "2", "3"],
-                correct: 0,
-                topic: "Estadística",
-                explanation: "El 4 aparece 3 veces"
-            },
-            {
-                text: "¿Cuántas permutaciones de 3 elementos en un conjunto de 5?",
-                options: ["60", "20", "10"],
-                correct: 0,
-                topic: "Combinatoria",
-                explanation: "P(5,3) = 5!/2! = 60"
-            },
-            {
-                text: "¿Cuántas combinaciones de 2 elementos en un conjunto de 4?",
-                options: ["6", "12", "4"],
-                correct: 0,
-                topic: "Combinatoria",
-                explanation: "C(4,2) = 6"
-            },
-            {
-                text: "Si P(A) = 0.5, P(B) = 0.4, P(A∩B) = 0.2, ¿P(A|B)?",
-                options: ["0.5", "0.4", "0.2"],
-                correct: 0,
-                topic: "Probabilidad Condicional",
-                explanation: "P(A|B) = 0.2/0.4 = 0.5"
-            },
-            {
-                text: "En un grupo de 30 estudiantes, 18 mujeres. ¿Probabilidad de elegir hombre?",
-                options: ["0.4", "0.6", "0.3"],
-                correct: 0,
-                topic: "Probabilidad",
-                explanation: "Hombres: 12, Total: 30, 12/30 = 0.4"
-            }
-        ]
-    }
-];
+        ];
+
         // Estado de la aplicación
-        let currentExam = 0; // 0 para examen 1, 1 para examen 2
+        let currentExam = 0;
         let currentStudent = {
             name: '',
             email: '',
-            attempts: [], // Guardará intentos por examen
+            attempts: [],
             currentAttempt: 1,
             maxAttempts: 3
         };
 
         let currentQuestion = 0;
         let answers = [];
-        let questionStatus = []; // 'correct', 'incorrect', 'pending'
+        let questionStatus = [];
         let timer;
         let timeLeft = 3600;
         let examFinished = false;
-        let attemptStartTime;
 
         function selectExam(examIndex) {
             currentExam = examIndex;
-            
-            // Actualizar botones
             document.getElementById('exam0').classList.remove('active');
             document.getElementById('exam1').classList.remove('active');
+            document.getElementById('exam2').classList.remove('active');
             document.getElementById(`exam${examIndex}`).classList.add('active');
-            
             document.getElementById('examTitle').textContent = exams[examIndex].name;
-            
-            // Si ya hay un estudiante registrado, resetear para nuevo examen
-            if (currentStudent.name) {
-                if (confirm('¿Cambiar de examen? Se perderá el progreso del examen actual.')) {
-                    resetForNewExam();
-                }
-            }
-        }
-
-        function resetForNewExam() {
-            // Resetear estado del examen
-            const examKey = `student_${currentStudent.email}_exam${currentExam}`;
-            const stored = localStorage.getItem(examKey);
-            
-            if (stored) {
-                currentStudent.attempts = JSON.parse(stored).attempts || [];
-            } else {
-                currentStudent.attempts = [];
-            }
-            
-            currentStudent.currentAttempt = currentStudent.attempts.length + 1;
-            
-            // Ocultar contenido del examen si está visible
-            document.getElementById('examContent').style.display = 'none';
-            document.getElementById('registrationForm').style.display = 'block';
         }
 
         function registerStudent() {
@@ -712,50 +776,21 @@
             const email = document.getElementById('studentEmail').value.trim();
 
             if (!name || !email) {
-                alert('Por favor, ingresa tu nombre y correo electrónico');
+                alert('Completa todos los campos');
                 return;
             }
 
-            if (!email.includes('@') || !email.includes('.')) {
-                alert('Por favor, ingresa un correo electrónico válido');
-                return;
-            }
+            currentStudent = {
+                name: name,
+                email: email,
+                attempts: [],
+                currentAttempt: 1,
+                maxAttempts: 3
+            };
 
-            // Cargar historial del estudiante para este examen específico
-            const examKey = `student_${email}_exam${currentExam}`;
-            const stored = localStorage.getItem(examKey);
-            
-            if (stored) {
-                currentStudent = JSON.parse(stored);
-            } else {
-                currentStudent = {
-                    name: name,
-                    email: email,
-                    attempts: [],
-                    currentAttempt: 1,
-                    maxAttempts: 3
-                };
-            }
-
-            // Verificar si puede intentar
-            if (currentStudent.attempts.length >= 3) {
-                alert(`Ya has completado los 3 intentos para ${exams[currentExam].name}. No puedes realizar más intentos.`);
-                return;
-            }
-
-            currentStudent.currentAttempt = currentStudent.attempts.length + 1;
-            
-            // Guardar en localStorage
-            localStorage.setItem(examKey, JSON.stringify(currentStudent));
-
-            // Mostrar examen
             document.getElementById('registrationForm').style.display = 'none';
             document.getElementById('examContent').style.display = 'block';
             
-            // Actualizar UI
-            updateAttemptsDisplay();
-            
-            // Iniciar nuevo intento
             resetAttempt();
             startTimer();
             renderQuestions();
@@ -768,31 +803,9 @@
             currentQuestion = 0;
             timeLeft = 3600;
             examFinished = false;
-            attemptStartTime = new Date();
-            
-            if (currentQuestion < exam.questions.length) {
-                document.querySelectorAll('.question').forEach(q => q.style.display = 'none');
-                const firstQuestion = document.getElementById('q0');
-                if (firstQuestion) firstQuestion.style.display = 'block';
-            }
             
             updateNavigationButtons();
             updateProgress();
-            updateAttemptsDisplay();
-        }
-
-        function updateAttemptsDisplay() {
-            document.getElementById('currentAttempt').textContent = currentStudent.currentAttempt;
-            document.getElementById('attemptsLeft').textContent = 3 - currentStudent.attempts.length;
-            
-            const attemptsBox = document.getElementById('attemptsBox');
-            if (currentStudent.attempts.length >= 2) {
-                attemptsBox.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
-            } else if (currentStudent.attempts.length >= 1) {
-                attemptsBox.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
-            } else {
-                attemptsBox.style.background = 'linear-gradient(135deg, #f39c12 0%, #f1c40f 100%)';
-            }
         }
 
         function startTimer() {
@@ -801,10 +814,7 @@
                 if (!examFinished) {
                     timeLeft--;
                     updateTimerDisplay();
-                    
-                    if (timeLeft <= 0) {
-                        finishAttempt();
-                    }
+                    if (timeLeft <= 0) finishAttempt();
                 }
             }, 1000);
         }
@@ -814,7 +824,7 @@
             const minutes = Math.floor((timeLeft % 3600) / 60);
             const seconds = timeLeft % 60;
             document.getElementById('timer').textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
         }
 
         function renderQuestions() {
@@ -831,47 +841,45 @@
                 
                 const isAnswered = questionStatus[index] !== 'pending';
                 
+                let optionsHtml = '';
+                q.options.forEach((opt, optIndex) => {
+                    const isSelected = answers[index] === optIndex;
+                    const isCorrect = optIndex === q.correct;
+                    let optionClass = 'option';
+                    
+                    if (isAnswered) {
+                        if (isCorrect) optionClass += ' correct-answer';
+                        else if (isSelected) optionClass += ' incorrect-answer';
+                        optionClass += ' answered';
+                    } else if (isSelected) {
+                        optionClass += ' selected';
+                    }
+                    
+                    optionsHtml += `
+                        <label class="${optionClass}">
+                            <input type="radio" name="q${index}" value="${optIndex}" 
+                                ${isSelected ? 'checked' : ''} 
+                                ${isAnswered ? 'disabled' : ''}
+                                onchange="handleAnswer(${index}, ${optIndex})">
+                            ${String.fromCharCode(65 + optIndex)}. ${opt}
+                        </label>
+                    `;
+                });
+                
                 questionDiv.innerHTML = `
                     <div class="question-header">
-                        <div class="question-number">Pregunta ${index + 1} - ${q.topic}</div>
+                        <div class="question-number">Pregunta ${index+1}</div>
                         ${isAnswered ? 
-                            `<div class="answered-badge">${questionStatus[index] === 'correct' ? '✓ Correcta' : '✗ Incorrecta'}</div>` : 
+                            `<div class="answered-badge">${questionStatus[index]==='correct'?'✓ Correcta':'✗ Incorrecta'}</div>` : 
                             `<div class="question-status">Esperando respuesta</div>`}
                     </div>
-                    <div class="question-text">${index + 1}. ${q.text}</div>
-                    <div class="options" id="options-${index}">
-                        ${q.options.map((opt, optIndex) => {
-                            const isSelected = answers[index] === optIndex;
-                            const isCorrect = optIndex === q.correct;
-                            let optionClass = 'option';
-                            
-                            if (isAnswered) {
-                                if (isCorrect) {
-                                    optionClass += ' correct-answer';
-                                } else if (isSelected && !isCorrect) {
-                                    optionClass += ' incorrect-answer';
-                                }
-                                optionClass += ' answered';
-                            } else if (isSelected) {
-                                optionClass += ' selected';
-                            }
-                            
-                            return `
-                                <label class="${optionClass}">
-                                    <input type="radio" name="q${index}" value="${optIndex}" 
-                                        ${isSelected ? 'checked' : ''} 
-                                        ${isAnswered ? 'disabled' : ''}
-                                        onchange="handleAnswer(${index}, ${optIndex})">
-                                    ${String.fromCharCode(65 + optIndex)}. ${opt}
-                                </label>
-                            `;
-                        }).join('')}
-                    </div>
+                    <div class="question-text">${index+1}. ${q.text}</div>
+                    <div class="options">${optionsHtml}</div>
                     <div id="feedback-${index}" class="feedback-message">
-                        ${isAnswered && questionStatus[index] === 'incorrect' ? 
-                            `<div class="feedback-incorrect">❌ Incorrecto. La respuesta correcta es ${String.fromCharCode(65 + q.correct)}. ${q.explanation || ''}</div>` : 
-                            isAnswered && questionStatus[index] === 'correct' ?
-                            `<div class="feedback-correct">✓ ¡Correcto! ${q.explanation || ''}</div>` : ''}
+                        ${isAnswered && questionStatus[index]==='incorrect' ? 
+                            `<div class="feedback-incorrect">❌ Incorrecto. Correcta: ${String.fromCharCode(65+q.correct)}. ${q.explanation}</div>` : 
+                            isAnswered && questionStatus[index]==='correct' ?
+                            `<div class="feedback-correct">✓ ¡Correcto! ${q.explanation}</div>` : ''}
                     </div>
                 `;
                 
@@ -880,70 +888,48 @@
         }
 
         function handleAnswer(questionIndex, optionIndex) {
-            // Si ya respondió, no permitir cambiar
-            if (questionStatus[questionIndex] !== 'pending' || examFinished) {
-                return;
-            }
+            if (questionStatus[questionIndex] !== 'pending' || examFinished) return;
 
             const exam = exams[currentExam];
             const isCorrect = optionIndex === exam.questions[questionIndex].correct;
             
-            // Guardar respuesta
             answers[questionIndex] = optionIndex;
+            questionStatus[questionIndex] = isCorrect ? 'correct' : 'incorrect';
             
-            if (isCorrect) {
-                questionStatus[questionIndex] = 'correct';
-            } else {
-                questionStatus[questionIndex] = 'incorrect';
-            }
-            
-            // Actualizar la interfaz de la pregunta actual
             updateQuestionDisplay(questionIndex);
             updateProgress();
         }
 
         function updateQuestionDisplay(questionIndex) {
             const questionDiv = document.getElementById(`q${questionIndex}`);
+            if (!questionDiv) return;
+            
             const exam = exams[currentExam];
             const q = exam.questions[questionIndex];
             
-            // Actualizar header
             const header = questionDiv.querySelector('.question-header');
-            const answeredBadge = questionStatus[questionIndex] === 'correct' ? 
-                '<div class="answered-badge">✓ Correcta</div>' : 
-                '<div class="answered-badge">✗ Incorrecta</div>';
-            
             header.innerHTML = `
-                <div class="question-number">Pregunta ${questionIndex + 1} - ${q.topic}</div>
-                ${answeredBadge}
+                <div class="question-number">Pregunta ${questionIndex+1}</div>
+                <div class="answered-badge">${questionStatus[questionIndex]==='correct'?'✓ Correcta':'✗ Incorrecta'}</div>
             `;
             
-            // Actualizar opciones
-            const optionsContainer = document.getElementById(`options-${questionIndex}`);
-            const labels = optionsContainer.querySelectorAll('.option');
-            labels.forEach((label, idx) => {
-                const radio = label.querySelector('input');
-                const isSelected = answers[questionIndex] === idx;
-                const isCorrect = idx === q.correct;
+            const options = questionDiv.querySelectorAll('.option');
+            options.forEach((opt, idx) => {
+                const radio = opt.querySelector('input');
+                opt.classList.remove('selected', 'correct-answer', 'incorrect-answer', 'answered');
                 
-                label.classList.remove('correct-answer', 'incorrect-answer', 'selected', 'answered');
+                if (idx === q.correct) opt.classList.add('correct-answer');
+                else if (idx === answers[questionIndex]) opt.classList.add('incorrect-answer');
                 
-                if (isCorrect) {
-                    label.classList.add('correct-answer');
-                } else if (isSelected && !isCorrect) {
-                    label.classList.add('incorrect-answer');
-                }
-                
-                label.classList.add('answered');
+                opt.classList.add('answered');
                 radio.disabled = true;
             });
             
-            // Actualizar feedback
-            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+            const feedback = document.getElementById(`feedback-${questionIndex}`);
             if (questionStatus[questionIndex] === 'incorrect') {
-                feedbackDiv.innerHTML = `<div class="feedback-incorrect">❌ Incorrecto. La respuesta correcta es ${String.fromCharCode(65 + q.correct)}. ${q.explanation || ''}</div>`;
+                feedback.innerHTML = `<div class="feedback-incorrect">❌ Incorrecto. Correcta: ${String.fromCharCode(65+q.correct)}. ${q.explanation}</div>`;
             } else {
-                feedbackDiv.innerHTML = `<div class="feedback-correct">✓ ¡Correcto! ${q.explanation || ''}</div>`;
+                feedback.innerHTML = `<div class="feedback-correct">✓ ¡Correcto! ${q.explanation}</div>`;
             }
         }
 
@@ -981,30 +967,15 @@
 
         function calculateResults() {
             const exam = exams[currentExam];
-            let correct = 0;
-            let incorrect = 0;
-            let unanswered = 0;
+            let correct = 0, incorrect = 0, unanswered = 0;
             
-            const topicResults = {};
-
-            exam.questions.forEach((q, index) => {
-                if (!topicResults[q.topic]) {
-                    topicResults[q.topic] = { total: 0, correct: 0 };
-                }
-                
-                topicResults[q.topic].total++;
-                
-                if (questionStatus[index] === 'correct') {
-                    correct++;
-                    topicResults[q.topic].correct++;
-                } else if (questionStatus[index] === 'incorrect') {
-                    incorrect++;
-                } else {
-                    unanswered++;
-                }
+            exam.questions.forEach((_, index) => {
+                if (questionStatus[index] === 'correct') correct++;
+                else if (questionStatus[index] === 'incorrect') incorrect++;
+                else unanswered++;
             });
 
-            return { correct, incorrect, unanswered, topicResults };
+            return { correct, incorrect, unanswered };
         }
 
         async function finishAttempt() {
@@ -1015,290 +986,110 @@
             const results = calculateResults();
             const totalScore = (results.correct / exam.questions.length * 100).toFixed(1);
             
-            // Guardar este intento
             const attemptData = {
                 examName: exam.name,
                 attemptNumber: currentStudent.currentAttempt,
                 date: new Date().toLocaleString(),
                 timeUsed: formatTime(3600 - timeLeft),
                 results: results,
-                totalScore: totalScore,
-                answers: [...answers],
-                questionStatus: [...questionStatus]
+                totalScore: totalScore
             };
             
             currentStudent.attempts.push(attemptData);
             
-            // Guardar en localStorage específico para este examen
-            const examKey = `student_${currentStudent.email}_exam${currentExam}`;
-            localStorage.setItem(examKey, JSON.stringify(currentStudent));
-            
-            // Enviar por email
             await sendResultsByEmail(attemptData);
-            
-            // Mostrar resultados
-            showAttemptResults(attemptData);
+            showResults(attemptData);
         }
 
         async function sendResultsByEmail(attemptData) {
             const indicator = document.getElementById('savingIndicator');
             indicator.style.display = 'block';
-            indicator.textContent = '📧 Enviando resultados al profesor...';
-            indicator.style.backgroundColor = '#3498db';
+            indicator.textContent = '📧 Enviando...';
 
             try {
-                // Preparar los parámetros para la plantilla
-                const templateParams = {
-                    student_name: currentStudent.name,
-                    student_email: currentStudent.email,
-                    exam_name: exams[currentExam].name,
-                    date: attemptData.date,
-                    attempt_number: attemptData.attemptNumber,
-                    time_used: attemptData.timeUsed,
-                    score: attemptData.totalScore,
-                    correct: attemptData.results.correct,
-                    incorrect: attemptData.results.incorrect,
-                    unanswered: attemptData.results.unanswered
-                };
-
-                // Añadir resultados por tema
-                let topicDetails = '';
-                for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
-                    topicDetails += `${topic}: ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)\n`;
-                }
-                templateParams.topic_details = topicDetails;
-
-                console.log('📧 Enviando correo con parámetros:', templateParams);
-
-                // Enviar el correo usando EmailJS
-                const response = await emailjs.send(
+                await emailjs.send(
                     EMAIL_CONFIG.serviceId,
                     EMAIL_CONFIG.templateId,
-                    templateParams
+                    {
+                        student_name: currentStudent.name,
+                        student_email: currentStudent.email,
+                        exam_name: exams[currentExam].name,
+                        date: attemptData.date,
+                        attempt_number: attemptData.attemptNumber,
+                        score: attemptData.totalScore,
+                        correct: attemptData.results.correct,
+                        incorrect: attemptData.results.incorrect,
+                        unanswered: attemptData.results.unanswered
+                    }
                 );
-
-                console.log('✅ Respuesta de EmailJS:', response);
                 
-                indicator.textContent = '✓ Resultados enviados al profesor correctamente';
+                indicator.textContent = '✓ Enviado';
                 indicator.style.backgroundColor = '#27ae60';
-                
             } catch (error) {
-                console.error('❌ Error al enviar por email:', error);
-                indicator.textContent = '✗ Error al enviar. Guardando copia local...';
+                indicator.textContent = '✗ Error';
                 indicator.style.backgroundColor = '#e74c3c';
-                
-                // Guardar copia local como respaldo
-                saveLocalCopy(attemptData);
             }
             
-            setTimeout(() => {
-                indicator.style.display = 'none';
-            }, 3000);
+            setTimeout(() => indicator.style.display = 'none', 3000);
         }
 
-        function saveLocalCopy(attemptData) {
-            const results = {
-                examen: exams[currentExam].name,
-                estudiante: currentStudent.name,
-                email: currentStudent.email,
-                intento: attemptData.attemptNumber,
-                fecha: attemptData.date,
-                puntaje: attemptData.totalScore + '%',
-                correctas: attemptData.results.correct,
-                incorrectas: attemptData.results.incorrect,
-                sin_responder: attemptData.results.unanswered
-            };
-            
-            // Guardar en localStorage como respaldo
-            const backupKey = `backup_${currentStudent.email}_exam${currentExam}_${Date.now()}`;
-            localStorage.setItem(backupKey, JSON.stringify(results));
-            
-            console.log('📦 Copia de seguridad guardada:', backupKey);
-        }
-
-        function showAttemptResults(attemptData) {
+        function showResults(attemptData) {
             document.getElementById('modalAttemptNumber').textContent = attemptData.attemptNumber;
-            
-            const resultsContent = document.getElementById('resultsContent');
-            
-            let topicHtml = '';
-            for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
-                topicHtml += `
-                    <div class="result-item">
-                        <span class="result-label">${topic}:</span> 
-                        ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)
-                    </div>
-                `;
-            }
-            
-            resultsContent.innerHTML = `
-                <div class="result-item">
-                    <span class="result-label">Examen:</span> ${exams[currentExam].name}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Estudiante:</span> ${currentStudent.name}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Email:</span> ${currentStudent.email}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Fecha:</span> ${attemptData.date}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Tiempo utilizado:</span> ${attemptData.timeUsed}
-                </div>
-                <div style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
-                    <h3 style="margin-bottom: 10px;">Puntuación Total</h3>
-                    <div style="font-size: 48px; font-weight: bold;">${attemptData.totalScore}%</div>
-                    <div>${attemptData.results.correct} correctas | ${attemptData.results.incorrect} incorrectas | ${attemptData.results.unanswered} sin responder</div>
-                </div>
-                <div style="margin: 20px 0;">
-                    <h3>Desglose por tema:</h3>
-                    ${topicHtml}
+            document.getElementById('resultsContent').innerHTML = `
+                <div class="result-item"><span class="result-label">Estudiante:</span> ${currentStudent.name}</div>
+                <div class="result-item"><span class="result-label">Examen:</span> ${exams[currentExam].name}</div>
+                <div class="result-item"><span class="result-label">Fecha:</span> ${attemptData.date}</div>
+                <div class="result-item"><span class="result-label">Tiempo:</span> ${attemptData.timeUsed}</div>
+                <div style="margin:20px 0; padding:20px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border-radius:10px;">
+                    <h3>Puntuación</h3>
+                    <div style="font-size:48px; font-weight:bold;">${attemptData.totalScore}%</div>
+                    <div>${attemptData.results.correct} correctas | ${attemptData.results.incorrect} incorrectas</div>
                 </div>
             `;
-            
             document.getElementById('resultsModal').style.display = 'flex';
         }
 
         function showHistory() {
-            const historyContent = document.getElementById('historyContent');
-            
             if (currentStudent.attempts.length === 0) {
-                historyContent.innerHTML = '<p>No hay intentos previos para este examen.</p>';
+                document.getElementById('historyContent').innerHTML = '<p>Sin intentos previos</p>';
             } else {
-                historyContent.innerHTML = currentStudent.attempts.map((attempt, index) => `
-                    <div class="result-item" style="border-left: 5px solid ${attempt.totalScore >= 60 ? '#27ae60' : '#e74c3c'};">
-                        <h4>Intento #${attempt.attemptNumber} - ${attempt.date}</h4>
-                        <p><strong>Examen:</strong> ${attempt.examName}</p>
-                        <p><strong>Puntuación:</strong> ${attempt.totalScore}%</p>
-                        <p><strong>Correctas:</strong> ${attempt.results.correct}/${exams[currentExam].questions.length}</p>
-                        <p><strong>Tiempo:</strong> ${attempt.timeUsed}</p>
-                        <button class="btn-primary" onclick="viewAttemptDetails(${index})" style="margin-top: 10px; padding: 5px 15px;">Ver detalles</button>
+                document.getElementById('historyContent').innerHTML = currentStudent.attempts.map((a, i) => `
+                    <div class="result-item">
+                        <h4>Intento #${a.attemptNumber}</h4>
+                        <p>${a.date}</p>
+                        <p>Puntuación: ${a.totalScore}%</p>
+                        <p>Correctas: ${a.results.correct}</p>
                     </div>
                 `).join('');
             }
-            
             document.getElementById('historyModal').style.display = 'flex';
         }
 
-        function viewAttemptDetails(attemptIndex) {
-            closeHistoryModal();
-            const attemptData = currentStudent.attempts[attemptIndex];
-            
-            document.getElementById('modalAttemptNumber').textContent = attemptData.attemptNumber;
-            
-            const resultsContent = document.getElementById('resultsContent');
-            
-            let topicHtml = '';
-            for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
-                topicHtml += `
-                    <div class="result-item">
-                        <span class="result-label">${topic}:</span> 
-                        ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)
-                    </div>
-                `;
-            }
-            
-            resultsContent.innerHTML = `
-                <div class="result-item">
-                    <span class="result-label">Examen:</span> ${attemptData.examName}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Estudiante:</span> ${currentStudent.name}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Email:</span> ${currentStudent.email}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Fecha:</span> ${attemptData.date}
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Tiempo utilizado:</span> ${attemptData.timeUsed}
-                </div>
-                <div style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
-                    <h3 style="margin-bottom: 10px;">Puntuación Total</h3>
-                    <div style="font-size: 48px; font-weight: bold;">${attemptData.totalScore}%</div>
-                    <div>${attemptData.results.correct} correctas | ${attemptData.results.incorrect} incorrectas | ${attemptData.results.unanswered} sin responder</div>
-                </div>
-                <div style="margin: 20px 0;">
-                    <h3>Desglose por tema:</h3>
-                    ${topicHtml}
-                </div>
-            `;
-            
-            document.getElementById('resultsModal').style.display = 'flex';
+        function formatTime(seconds) {
+            const h = Math.floor(seconds/3600);
+            const m = Math.floor((seconds%3600)/60);
+            const s = seconds%60;
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function closeModal() {
+            document.getElementById('resultsModal').style.display = 'none';
         }
 
         function closeHistoryModal() {
             document.getElementById('historyModal').style.display = 'none';
         }
 
-        function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function closeModal() {
-            document.getElementById('resultsModal').style.display = 'none';
-            
-            // Verificar si quedan intentos
-            if (currentStudent.attempts.length >= 3) {
-                alert(`Has completado los 3 intentos para ${exams[currentExam].name}. Gracias por participar.`);
-                // Volver al registro
-                document.getElementById('examContent').style.display = 'none';
-                document.getElementById('registrationForm').style.display = 'block';
-            } else {
-                if (confirm(`¿Quieres intentarlo de nuevo? Te quedan ${3 - currentStudent.attempts.length} intentos.`)) {
-                    currentStudent.currentAttempt = currentStudent.attempts.length + 1;
-                    const examKey = `student_${currentStudent.email}_exam${currentExam}`;
-                    localStorage.setItem(examKey, JSON.stringify(currentStudent));
-                    resetAttempt();
-                    startTimer();
-                    renderQuestions();
-                    updateAttemptsDisplay();
-                }
-            }
-        }
-
         function downloadResults() {
-            const attemptData = currentStudent.attempts[currentStudent.attempts.length - 1];
-            const exam = exams[currentExam];
-            
-            let content = `RESULTADOS SIMULACRO EXANI II\n`;
-            content += `===============================\n\n`;
-            content += `Examen: ${exam.name}\n`;
-            content += `Estudiante: ${currentStudent.name}\n`;
-            content += `Email: ${currentStudent.email}\n`;
-            content += `Intento: ${attemptData.attemptNumber}/3\n`;
-            content += `Fecha: ${attemptData.date}\n`;
-            content += `Tiempo utilizado: ${attemptData.timeUsed}\n\n`;
-            
-            content += `Puntuación total: ${attemptData.totalScore}%\n`;
-            content += `Respuestas correctas: ${attemptData.results.correct}\n`;
-            content += `Respuestas incorrectas: ${attemptData.results.incorrect}\n`;
-            content += `Sin responder: ${attemptData.results.unanswered}\n\n`;
-            
-            content += `DESGLOSE POR TEMA\n`;
-            content += `-----------------\n`;
-            for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
-                content += `${topic}: ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)\n`;
-            }
-            
-            const blob = new Blob([content], { type: 'text/plain' });
+            const data = currentStudent.attempts[currentStudent.attempts.length-1];
+            const content = `RESULTADOS\nEstudiante: ${currentStudent.name}\nExamen: ${exams[currentExam].name}\nPuntuación: ${data.totalScore}%`;
+            const blob = new Blob([content], {type: 'text/plain'});
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `resultados_${exam.name}_${currentStudent.name}_intento${attemptData.attemptNumber}.txt`;
+            a.download = `resultados_${currentStudent.name}.txt`;
             a.click();
-            window.URL.revokeObjectURL(url);
         }
     </script>
 </body>
 </html>
-
-
-
-
