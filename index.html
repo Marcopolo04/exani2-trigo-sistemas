@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Exani II - Trigonometría y Sistemas de Ecuaciones</title>
+    <title>Simulador Exani II - Múltiples Exámenes</title>
     <!-- EmailJS Library -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
@@ -42,6 +42,49 @@
             margin-bottom: 30px;
             font-size: 18px;
             font-weight: normal;
+        }
+
+        .exam-selector {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a363d9 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .exam-selector h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .exam-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .exam-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .exam-btn:hover {
+            background: white;
+            color: #6c5ce7;
+        }
+
+        .exam-btn.active {
+            background: white;
+            color: #6c5ce7;
+            border-color: #6c5ce7;
         }
 
         .student-info {
@@ -127,8 +170,8 @@
             font-weight: bold;
         }
 
-        .attempts-badge {
-            background-color: #e74c3c;
+        .question-status {
+            background-color: #3498db;
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
@@ -160,7 +203,7 @@
             transition: all 0.3s;
         }
 
-        .option:hover:not(.disabled) {
+        .option:hover:not(.disabled):not(.answered) {
             background-color: #e8f0fe;
             border-color: #667eea;
         }
@@ -183,6 +226,11 @@
         .option.incorrect-answer {
             background-color: #f8d7da;
             border-color: #dc3545;
+        }
+
+        .option.answered {
+            cursor: not-allowed;
+            opacity: 0.9;
         }
 
         .option.disabled {
@@ -277,16 +325,6 @@
             color: white;
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -330,12 +368,6 @@
             margin: 10px;
         }
 
-        .email-btn {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            margin: 10px;
-        }
-
         .saving-indicator {
             display: none;
             position: fixed;
@@ -372,6 +404,26 @@
             text-align: center;
         }
 
+        .exam-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .answered-badge {
+            background-color: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
         @media (max-width: 768px) {
             .student-info {
                 padding: 15px;
@@ -385,6 +437,10 @@
                 padding: 10px 20px;
                 font-size: 14px;
             }
+
+            .exam-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -392,8 +448,16 @@
     <div class="saving-indicator" id="savingIndicator">✓ Procesando...</div>
 
     <div class="container">
-        <h1>📝 Simulador Exani II</h1>
-        <h2>Trigonometría y Sistemas de Ecuaciones</h2>
+        <h1>📚 Simulador Exani II</h1>
+        <h2>Múltiples Exámenes de Práctica</h2>
+        
+        <div class="exam-selector">
+            <h3>📌 Selecciona el examen que deseas practicar:</h3>
+            <div class="exam-buttons">
+                <button class="exam-btn active" onclick="selectExam(0)" id="exam0">📐 Examen 1: Trigonometría y Sistemas</button>
+                <button class="exam-btn" onclick="selectExam(1)" id="exam1">🔢 Examen 2: Productos Notables y Factorización</button>
+            </div>
+        </div>
         
         <div class="student-info" id="registrationForm">
             <h3>📋 Registro del Estudiante</h3>
@@ -403,6 +467,8 @@
         </div>
 
         <div id="examContent" style="display: none;">
+            <div class="exam-title" id="examTitle">Examen 1: Trigonometría y Sistemas de Ecuaciones</div>
+            
             <div class="attempts-box" id="attemptsBox">
                 <h3>🎯 Intento #<span id="currentAttempt">1</span> de 3</h3>
                 <div class="attempt-count" id="attemptsLeft">3</div>
@@ -412,8 +478,9 @@
             <div class="timer" id="timer">01:00:00</div>
 
             <div class="instructions" id="attemptInstructions">
-                <strong>📌 Instrucciones:</strong> Tienes 3 intentos para resolver el examen. 
-                Puedes finalizar cada intento cuando quieras y volver a intentarlo.
+                <strong>📌 Instrucciones:</strong> Tienes UNA SOLA OPORTUNIDAD por pregunta. 
+                Al seleccionar una respuesta, verás inmediatamente si es correcta o incorrecta.
+                Las preguntas incorrectas mostrarán la respuesta correcta.
             </div>
 
             <div class="progress-bar">
@@ -466,210 +533,503 @@
         emailjs.init(EMAIL_CONFIG.userId);
         // =============================================
 
-        // Banco de preguntas
-        const questions = [
-            // Trigonometría (15 preguntas)
+        // =============================================
+        // EXÁMENES DISPONIBLES
+        // =============================================
+        const exams = [
             {
-                text: "¿Cuál es el valor de sen(30°)?",
-                options: ["1/2", "√3/2", "√2/2"],
-                correct: 0,
-                topic: "Trigonometría"
+                name: "Examen 1: Trigonometría y Sistemas de Ecuaciones",
+                description: "Trigonometría, Sistemas 2x2 y Sistemas 3x3",
+                questions: [
+                    // Trigonometría (15 preguntas)
+                    {
+                        text: "¿Cuál es el valor de sen(30°)?",
+                        options: ["1/2", "√3/2", "√2/2"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "El seno de 30° es 1/2, un valor fundamental en trigonometría."
+                    },
+                    {
+                        text: "Si en un triángulo rectángulo, el cateto opuesto a un ángulo agudo mide 3 y la hipotenusa mide 5, ¿cuál es el valor del coseno de ese ángulo?",
+                        options: ["4/5", "3/5", "5/3"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "Por el teorema de Pitágoras, el cateto adyacente es 4, por lo tanto cos = 4/5."
+                    },
+                    {
+                        text: "¿Cuál es el valor de tan(45°)?",
+                        options: ["0", "1", "√3"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "La tangente de 45° es 1, ya que sen(45°)=cos(45°)=√2/2."
+                    },
+                    {
+                        text: "En un triángulo rectángulo, si sen(θ) = 3/5, ¿cuál es el valor de cos(θ)?",
+                        options: ["4/5", "3/4", "5/4"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "Usando la identidad sen²θ + cos²θ = 1, cos θ = 4/5."
+                    },
+                    {
+                        text: "¿Cuál es el valor de cos(60°)?",
+                        options: ["1/2", "√3/2", "√2/2"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "El coseno de 60° es 1/2."
+                    },
+                    {
+                        text: "Si tan(θ) = 1, ¿cuál es el valor de θ en grados?",
+                        options: ["30°", "45°", "60°"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "tan(45°) = 1, por lo tanto θ = 45°."
+                    },
+                    {
+                        text: "¿Cuál es el valor de sen(90°)?",
+                        options: ["0", "1", "No está definido"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "El seno de 90° es 1."
+                    },
+                    {
+                        text: "En un triángulo rectángulo, si el cateto adyacente mide 4 y la hipotenusa mide 5, ¿cuál es el valor de sen(θ)?",
+                        options: ["3/5", "4/5", "5/4"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "Por Pitágoras, el cateto opuesto es 3, por lo tanto sen = 3/5."
+                    },
+                    {
+                        text: "¿Cuál es el valor de cos(0°)?",
+                        options: ["0", "1", "-1"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "El coseno de 0° es 1."
+                    },
+                    {
+                        text: "Si sen(θ) = 1/2, ¿cuál es un posible valor de θ?",
+                        options: ["30°", "45°", "60°"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "sen(30°) = 1/2, también podría ser 150° pero solo 30° está en las opciones."
+                    },
+                    {
+                        text: "¿Cuál es el valor de tan(60°)?",
+                        options: ["1", "√3", "1/√3"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "tan(60°) = √3 ≈ 1.732."
+                    },
+                    {
+                        text: "En un triángulo rectángulo, si los catetos miden 3 y 4, ¿cuánto mide la hipotenusa?",
+                        options: ["5", "6", "7"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "Por Pitágoras: 3² + 4² = 9 + 16 = 25, √25 = 5."
+                    },
+                    {
+                        text: "¿Cuál es el valor de sen(60°)?",
+                        options: ["1/2", "√3/2", "√2/2"],
+                        correct: 1,
+                        topic: "Trigonometría",
+                        explanation: "sen(60°) = √3/2 ≈ 0.866."
+                    },
+                    {
+                        text: "Si cos(θ) = 1/2, ¿cuál es un posible valor de θ?",
+                        options: ["30°", "45°", "60°"],
+                        correct: 2,
+                        topic: "Trigonometría",
+                        explanation: "cos(60°) = 1/2."
+                    },
+                    {
+                        text: "¿Cuál es la identidad trigonométrica fundamental?",
+                        options: ["sen²θ + cos²θ = 1", "sen²θ - cos²θ = 1", "tan²θ + 1 = sec²θ"],
+                        correct: 0,
+                        topic: "Trigonometría",
+                        explanation: "La identidad pitagórica fundamental es sen²θ + cos²θ = 1."
+                    },
+                    // Sistemas de ecuaciones 2x2 (8 preguntas)
+                    {
+                        text: "Resuelve el sistema: x + y = 5, x - y = 1",
+                        options: ["x=3, y=2", "x=2, y=3", "x=4, y=1"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "Sumando las ecuaciones: 2x = 6 → x = 3, luego y = 2."
+                    },
+                    {
+                        text: "Resuelve el sistema: 2x + y = 7, x - y = 2",
+                        options: ["x=3, y=1", "x=2, y=3", "x=4, y=-1"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "Sumando: 3x = 9 → x = 3, luego y = 1."
+                    },
+                    {
+                        text: "Resuelve el sistema: 3x + 2y = 12, x - y = 1",
+                        options: ["x=2.8, y=1.8", "x=3, y=2", "x=4, y=0"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "De la segunda: x = y+1. Sustituyendo: 3(y+1)+2y=12 → 5y+3=12 → y=1.8, x=2.8."
+                    },
+                    {
+                        text: "Resuelve el sistema: x + 2y = 8, 2x - y = 1",
+                        options: ["x=2, y=3", "x=3, y=2.5", "x=4, y=2"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "Multiplicando la segunda por 2: 4x-2y=2. Sumando con primera: 5x=10 → x=2, y=3."
+                    },
+                    {
+                        text: "Resuelve el sistema: 2x + 3y = 13, x - 2y = -4",
+                        options: ["x=2, y=3", "x=3, y=2", "x=1, y=4"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "De la segunda: x = 2y-4. Sustituyendo: 2(2y-4)+3y=13 → 7y-8=13 → y=3, x=2."
+                    },
+                    {
+                        text: "Resuelve el sistema: 4x - y = 5, 2x + y = 7",
+                        options: ["x=2, y=3", "x=3, y=7", "x=1, y=-1"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "Sumando: 6x = 12 → x = 2, luego y = 3."
+                    },
+                    {
+                        text: "Resuelve el sistema: 5x + 2y = 16, 3x - 4y = 20",
+                        options: ["x=4, y=-2", "x=2, y=3", "x=3, y=0.5"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "Multiplicando primera por 2: 10x+4y=32. Sumando con segunda: 13x=52 → x=4, y=-2."
+                    },
+                    {
+                        text: "Resuelve el sistema: 3x + 5y = 19, 2x - 3y = 0",
+                        options: ["x=3, y=2", "x=2, y=3", "x=4, y=1.4"],
+                        correct: 0,
+                        topic: "Sistemas 2x2",
+                        explanation: "De la segunda: 2x=3y → x=1.5y. Sustituyendo: 3(1.5y)+5y=19 → 9.5y=19 → y=2, x=3."
+                    },
+                    // Sistemas de ecuaciones 3x3 (7 preguntas)
+                    {
+                        text: "Resuelve: x + y + z = 6, x - y + z = 2, x + y - z = 0",
+                        options: ["x=2, y=2, z=2", "x=3, y=2, z=1", "x=1, y=3, z=2"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "Sumando primera y tercera: 2x+2y=6 → x+y=3. Con primera: z=3. Sustituyendo: x=2, y=2."
+                    },
+                    {
+                        text: "Resuelve: 2x + y + z = 7, x + 2y + z = 8, x + y + 2z = 9",
+                        options: ["x=1, y=2, z=3", "x=2, y=2, z=2", "x=3, y=1, z=2"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "Sumando las tres: 4x+4y+4z=24 → x+y+z=6. Restando de cada ecuación: x=1, y=2, z=3."
+                    },
+                    {
+                        text: "Resuelve: x + y = 5, y + z = 7, x + z = 6",
+                        options: ["x=2, y=3, z=4", "x=3, y=2, z=5", "x=4, y=1, z=6"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "Sumando las tres: 2(x+y+z)=18 → x+y+z=9. Restando: x=2, y=3, z=4."
+                    },
+                    {
+                        text: "Resuelve: x + 2y - z = 3, 2x - y + z = 5, -x + y + 2z = 4",
+                        options: ["x=2, y=1, z=1", "x=1, y=2, z=3", "x=3, y=2, z=4"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "Sumando primera y segunda: 3x+y=8. Sumando segunda y tercera: x+3z=9. Resolviendo: x=2, y=1, z=1."
+                    },
+                    {
+                        text: "Resuelve: 3x + 2y + z = 10, x + 3y + 2z = 14, 2x + y + 3z = 13",
+                        options: ["x=1, y=2, z=3", "x=2, y=1, z=3", "x=3, y=2, z=1"],
+                        correct: 0,
+                        topic: "Sistemas 3x3",
+                        explanation: "Resolviendo por eliminación: x=1, y=2, z=3."
+                    },
+                    {
+                        text: "Resuelve: x + y + z = 10, 2x - y + z = 5, x + 2y - z = 2",
+                        options: ["x=2, y=3, z=5", "x=3, y=2, z=5", "x=5, y=2, z=3"],
+                        correct: 1,
+                        topic: "Sistemas 3x3",
+                        explanation: "Resolviendo: x=3, y=2, z=5."
+                    },
+                    {
+                        text: "Resuelve: 2x + 3y - z = 12, x - 2y + 3z = 7, 3x + y + 2z = 15",
+                        options: ["x=3, y=2, z=1", "x=2, y=3, z=1", "x=1, y=4, z=2"],
+                        correct: 1,
+                        topic: "Sistemas 3x3",
+                        explanation: "Resolviendo: x=2, y=3, z=1."
+                    }
+                ]
             },
             {
-                text: "Si en un triángulo rectángulo, el cateto opuesto a un ángulo agudo mide 3 y la hipotenusa mide 5, ¿cuál es el valor del coseno de ese ángulo?",
-                options: ["4/5", "3/5", "5/3"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es el valor de tan(45°)?",
-                options: ["0", "1", "√3"],
-                correct: 1,
-                topic: "Trigonometría"
-            },
-            {
-                text: "En un triángulo rectángulo, si sen(θ) = 3/5, ¿cuál es el valor de cos(θ)?",
-                options: ["4/5", "3/4", "5/4"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es el valor de cos(60°)?",
-                options: ["1/2", "√3/2", "√2/2"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            {
-                text: "Si tan(θ) = 1, ¿cuál es el valor de θ en grados?",
-                options: ["30°", "45°", "60°"],
-                correct: 1,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es el valor de sen(90°)?",
-                options: ["0", "1", "No está definido"],
-                correct: 1,
-                topic: "Trigonometría"
-            },
-            {
-                text: "En un triángulo rectángulo, si el cateto adyacente mide 4 y la hipotenusa mide 5, ¿cuál es el valor de sen(θ)?",
-                options: ["3/5", "4/5", "5/4"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es el valor de cos(0°)?",
-                options: ["0", "1", "-1"],
-                correct: 1,
-                topic: "Trigonometría"
-            },
-            {
-                text: "Si sen(θ) = 1/2, ¿cuál es un posible valor de θ?",
-                options: ["30°", "45°", "60°"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es el valor de tan(60°)?",
-                options: ["1", "√3", "1/√3"],
-                correct: 1,
-                topic: "Trigonometría"
-            },
-            {
-                text: "En un triángulo rectángulo, si los catetos miden 3 y 4, ¿cuánto mide la hipotenusa?",
-                options: ["5", "6", "7"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es el valor de sen(60°)?",
-                options: ["1/2", "√3/2", "√2/2"],
-                correct: 1,
-                topic: "Trigonometría"
-            },
-            {
-                text: "Si cos(θ) = 1/2, ¿cuál es un posible valor de θ?",
-                options: ["30°", "45°", "60°"],
-                correct: 2,
-                topic: "Trigonometría"
-            },
-            {
-                text: "¿Cuál es la identidad trigonométrica fundamental?",
-                options: ["sen²θ + cos²θ = 1", "sen²θ - cos²θ = 1", "tan²θ + 1 = sec²θ"],
-                correct: 0,
-                topic: "Trigonometría"
-            },
-            // Sistemas de ecuaciones 2x2 (8 preguntas)
-            {
-                text: "Resuelve el sistema: x + y = 5, x - y = 1",
-                options: ["x=3, y=2", "x=2, y=3", "x=4, y=1"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: 2x + y = 7, x - y = 2",
-                options: ["x=3, y=1", "x=2, y=3", "x=4, y=-1"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: 3x + 2y = 12, x - y = 1",
-                options: ["x=2.8, y=1.8", "x=3, y=2", "x=4, y=0"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: x + 2y = 8, 2x - y = 1",
-                options: ["x=2, y=3", "x=3, y=2.5", "x=4, y=2"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: 2x + 3y = 13, x - 2y = -4",
-                options: ["x=2, y=3", "x=3, y=2", "x=1, y=4"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: 4x - y = 5, 2x + y = 7",
-                options: ["x=2, y=3", "x=3, y=7", "x=1, y=-1"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: 5x + 2y = 16, 3x - 4y = 20",
-                options: ["x=4, y=-2", "x=2, y=3", "x=3, y=0.5"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            {
-                text: "Resuelve el sistema: 3x + 5y = 19, 2x - 3y = 0",
-                options: ["x=3, y=2", "x=2, y=3", "x=4, y=1.4"],
-                correct: 0,
-                topic: "Sistemas 2x2"
-            },
-            // Sistemas de ecuaciones 3x3 (7 preguntas)
-            {
-                text: "Resuelve: x + y + z = 6, x - y + z = 2, x + y - z = 0",
-                options: ["x=2, y=2, z=2", "x=3, y=2, z=1", "x=1, y=3, z=2"],
-                correct: 0,
-                topic: "Sistemas 3x3"
-            },
-            {
-                text: "Resuelve: 2x + y + z = 7, x + 2y + z = 8, x + y + 2z = 9",
-                options: ["x=1, y=2, z=3", "x=2, y=2, z=2", "x=3, y=1, z=2"],
-                correct: 0,
-                topic: "Sistemas 3x3"
-            },
-            {
-                text: "Resuelve: x + y = 5, y + z = 7, x + z = 6",
-                options: ["x=2, y=3, z=4", "x=3, y=2, z=5", "x=4, y=1, z=6"],
-                correct: 0,
-                topic: "Sistemas 3x3"
-            },
-            {
-                text: "Resuelve: x + 2y - z = 3, 2x - y + z = 5, -x + y + 2z = 4",
-                options: ["x=2, y=1, z=1", "x=1, y=2, z=3", "x=3, y=2, z=4"],
-                correct: 0,
-                topic: "Sistemas 3x3"
-            },
-            {
-                text: "Resuelve: 3x + 2y + z = 10, x + 3y + 2z = 14, 2x + y + 3z = 13",
-                options: ["x=1, y=2, z=3", "x=2, y=1, z=3", "x=3, y=2, z=1"],
-                correct: 0,
-                topic: "Sistemas 3x3"
-            },
-            {
-                text: "Resuelve: x + y + z = 10, 2x - y + z = 5, x + 2y - z = 2",
-                options: ["x=2, y=3, z=5", "x=3, y=2, z=5", "x=5, y=2, z=3"],
-                correct: 1,
-                topic: "Sistemas 3x3"
-            },
-            {
-                text: "Resuelve: 2x + 3y - z = 12, x - 2y + 3z = 7, 3x + y + 2z = 15",
-                options: ["x=3, y=2, z=1", "x=2, y=3, z=1", "x=1, y=4, z=2"],
-                correct: 1,
-                topic: "Sistemas 3x3"
+                name: "Examen 2: Productos Notables, Factorización y Álgebra de Funciones",
+                description: "Productos Notables, Factorización y Álgebra de Funciones",
+                questions: [
+                    // Productos Notables (10 preguntas)
+                    {
+                        text: "¿Cuál es el resultado de (a + b)²?",
+                        options: ["a² + 2ab + b²", "a² - 2ab + b²", "a² + b²"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "El cuadrado de un binomio suma es: (a+b)² = a² + 2ab + b²"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (a - b)²?",
+                        options: ["a² - 2ab + b²", "a² + 2ab + b²", "a² - b²"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "El cuadrado de un binomio resta es: (a-b)² = a² - 2ab + b²"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (a + b)(a - b)?",
+                        options: ["a² - b²", "a² + b²", "a² + 2ab + b²"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "El producto de binomios conjugados es: (a+b)(a-b) = a² - b²"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (x + 3)(x - 3)?",
+                        options: ["x² - 9", "x² + 9", "x² - 6x + 9"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "Es un producto de binomios conjugados: (x+3)(x-3) = x² - 9"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (2x + 1)²?",
+                        options: ["4x² + 4x + 1", "4x² + 2x + 1", "4x² + 1"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "(2x)² = 4x², 2(2x)(1) = 4x, 1² = 1 → 4x² + 4x + 1"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (3x - 2)²?",
+                        options: ["9x² - 12x + 4", "9x² + 12x + 4", "9x² - 4"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "(3x)² = 9x², 2(3x)(-2) = -12x, (-2)² = 4 → 9x² - 12x + 4"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (x + 4)(x + 5)?",
+                        options: ["x² + 9x + 20", "x² + 20x + 9", "x² + 9x + 9"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "Multiplicando: x·x = x², x·5 + x·4 = 9x, 4·5 = 20 → x² + 9x + 20"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (2x + 3)(2x - 3)?",
+                        options: ["4x² - 9", "4x² + 9", "4x² - 12x + 9"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "Es un producto de binomios conjugados: (2x)² - 3² = 4x² - 9"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (x + 2)³?",
+                        options: ["x³ + 6x² + 12x + 8", "x³ + 3x² + 3x + 1", "x³ + 8"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "El cubo de un binomio: (x+2)³ = x³ + 3(x²)(2) + 3(x)(2²) + 2³ = x³ + 6x² + 12x + 8"
+                    },
+                    {
+                        text: "¿Cuál es el resultado de (2x - 1)³?",
+                        options: ["8x³ - 12x² + 6x - 1", "8x³ + 12x² + 6x + 1", "8x³ - 1"],
+                        correct: 0,
+                        topic: "Productos Notables",
+                        explanation: "(2x-1)³ = 8x³ - 3(4x²)(1) + 3(2x)(1) - 1 = 8x³ - 12x² + 6x - 1"
+                    },
+                    // Factorización (10 preguntas)
+                    {
+                        text: "Factoriza: x² - 9",
+                        options: ["(x - 3)(x + 3)", "(x - 3)²", "(x + 3)²"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es una diferencia de cuadrados: a² - b² = (a-b)(a+b), con a=x, b=3"
+                    },
+                    {
+                        text: "Factoriza: x² + 6x + 9",
+                        options: ["(x + 3)²", "(x - 3)²", "(x + 3)(x - 3)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es un trinomio cuadrado perfecto: x² + 2(3)x + 3² = (x+3)²"
+                    },
+                    {
+                        text: "Factoriza: x² - 4x + 4",
+                        options: ["(x - 2)²", "(x + 2)²", "(x - 2)(x + 2)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es un trinomio cuadrado perfecto: x² - 2(2)x + 2² = (x-2)²"
+                    },
+                    {
+                        text: "Factoriza: x² + 5x + 6",
+                        options: ["(x + 2)(x + 3)", "(x + 1)(x + 6)", "(x + 5)(x + 1)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Buscamos dos números que sumados den 5 y multiplicados den 6: 2 y 3 → (x+2)(x+3)"
+                    },
+                    {
+                        text: "Factoriza: x² - 5x + 6",
+                        options: ["(x - 2)(x - 3)", "(x - 1)(x - 6)", "(x - 5)(x - 1)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Buscamos dos números que sumados den -5 y multiplicados den 6: -2 y -3 → (x-2)(x-3)"
+                    },
+                    {
+                        text: "Factoriza: 4x² - 9",
+                        options: ["(2x - 3)(2x + 3)", "(2x - 3)²", "(4x - 9)(4x + 9)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es una diferencia de cuadrados: (2x)² - 3² = (2x-3)(2x+3)"
+                    },
+                    {
+                        text: "Factoriza: 9x² - 16",
+                        options: ["(3x - 4)(3x + 4)", "(3x - 4)²", "(9x - 16)(9x + 16)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es una diferencia de cuadrados: (3x)² - 4² = (3x-4)(3x+4)"
+                    },
+                    {
+                        text: "Factoriza: x³ - 8",
+                        options: ["(x - 2)(x² + 2x + 4)", "(x - 2)³", "(x + 2)(x² - 2x + 4)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es una diferencia de cubos: a³ - b³ = (a-b)(a² + ab + b²), con a=x, b=2"
+                    },
+                    {
+                        text: "Factoriza: x³ + 27",
+                        options: ["(x + 3)(x² - 3x + 9)", "(x + 3)³", "(x - 3)(x² + 3x + 9)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Es una suma de cubos: a³ + b³ = (a+b)(a² - ab + b²), con a=x, b=3"
+                    },
+                    {
+                        text: "Factoriza: 2x² + 5x + 2",
+                        options: ["(2x + 1)(x + 2)", "(2x + 2)(x + 1)", "(2x - 1)(x - 2)"],
+                        correct: 0,
+                        topic: "Factorización",
+                        explanation: "Buscamos factores: 2x² + 5x + 2 = (2x+1)(x+2)"
+                    },
+                    // Álgebra de Funciones (10 preguntas)
+                    {
+                        text: "Si f(x) = 2x + 3, ¿cuál es el valor de f(2)?",
+                        options: ["7", "5", "4"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "f(2) = 2(2) + 3 = 4 + 3 = 7"
+                    },
+                    {
+                        text: "Si f(x) = x² - 2x, ¿cuál es el valor de f(3)?",
+                        options: ["3", "6", "9"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "f(3) = 3² - 2(3) = 9 - 6 = 3"
+                    },
+                    {
+                        text: "Si f(x) = 3x - 1 y g(x) = x + 2, ¿cuál es f(g(2))?",
+                        options: ["11", "8", "14"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "g(2) = 2+2 = 4, f(4) = 3(4) - 1 = 12 - 1 = 11"
+                    },
+                    {
+                        text: "Si f(x) = x² y g(x) = 2x, ¿cuál es (f + g)(3)?",
+                        options: ["15", "9", "12"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "(f+g)(3) = f(3) + g(3) = 3² + 2(3) = 9 + 6 = 15"
+                    },
+                    {
+                        text: "Si f(x) = 2x + 1, ¿cuál es el valor de f(0)?",
+                        options: ["1", "0", "2"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "f(0) = 2(0) + 1 = 0 + 1 = 1"
+                    },
+                    {
+                        text: "Si f(x) = x² - 4, ¿cuáles son los ceros de la función?",
+                        options: ["x = 2 y x = -2", "x = 4 y x = -4", "x = 2 solamente"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "x² - 4 = 0 → x² = 4 → x = ±2"
+                    },
+                    {
+                        text: "Si f(x) = |x|, ¿cuál es el valor de f(-5)?",
+                        options: ["5", "-5", "0"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "El valor absoluto de -5 es 5"
+                    },
+                    {
+                        text: "Si f(x) = √x, ¿cuál es el valor de f(9)?",
+                        options: ["3", "81", "9"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "√9 = 3"
+                    },
+                    {
+                        text: "Si f(x) = 2ˣ, ¿cuál es el valor de f(3)?",
+                        options: ["8", "6", "9"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "2³ = 8"
+                    },
+                    {
+                        text: "Si f(x) = log₁₀(x), ¿cuál es el valor de f(100)?",
+                        options: ["2", "10", "100"],
+                        correct: 0,
+                        topic: "Álgebra de Funciones",
+                        explanation: "log₁₀(100) = 2, porque 10² = 100"
+                    }
+                ]
             }
         ];
 
         // Estado de la aplicación
+        let currentExam = 0; // 0 para examen 1, 1 para examen 2
         let currentStudent = {
             name: '',
             email: '',
-            attempts: [],
+            attempts: [], // Guardará intentos por examen
             currentAttempt: 1,
             maxAttempts: 3
         };
 
         let currentQuestion = 0;
-        let answers = new Array(questions.length).fill(null);
-        let attempts = new Array(questions.length).fill(0);
-        let questionStatus = new Array(questions.length).fill('pending');
+        let answers = [];
+        let questionStatus = []; // 'correct', 'incorrect', 'pending'
         let timer;
         let timeLeft = 3600;
         let examFinished = false;
         let attemptStartTime;
+
+        function selectExam(examIndex) {
+            currentExam = examIndex;
+            
+            // Actualizar botones
+            document.getElementById('exam0').classList.remove('active');
+            document.getElementById('exam1').classList.remove('active');
+            document.getElementById(`exam${examIndex}`).classList.add('active');
+            
+            document.getElementById('examTitle').textContent = exams[examIndex].name;
+            
+            // Si ya hay un estudiante registrado, resetear para nuevo examen
+            if (currentStudent.name) {
+                if (confirm('¿Cambiar de examen? Se perderá el progreso del examen actual.')) {
+                    resetForNewExam();
+                }
+            }
+        }
+
+        function resetForNewExam() {
+            // Resetear estado del examen
+            const examKey = `student_${currentStudent.email}_exam${currentExam}`;
+            const stored = localStorage.getItem(examKey);
+            
+            if (stored) {
+                currentStudent.attempts = JSON.parse(stored).attempts || [];
+            } else {
+                currentStudent.attempts = [];
+            }
+            
+            currentStudent.currentAttempt = currentStudent.attempts.length + 1;
+            
+            // Ocultar contenido del examen si está visible
+            document.getElementById('examContent').style.display = 'none';
+            document.getElementById('registrationForm').style.display = 'block';
+        }
 
         function registerStudent() {
             const name = document.getElementById('studentName').value.trim();
@@ -685,9 +1045,9 @@
                 return;
             }
 
-            // Cargar historial del estudiante
-            const storageKey = `student_${email}`;
-            const stored = localStorage.getItem(storageKey);
+            // Cargar historial del estudiante para este examen específico
+            const examKey = `student_${email}_exam${currentExam}`;
+            const stored = localStorage.getItem(examKey);
             
             if (stored) {
                 currentStudent = JSON.parse(stored);
@@ -703,14 +1063,14 @@
 
             // Verificar si puede intentar
             if (currentStudent.attempts.length >= 3) {
-                alert('Ya has completado los 3 intentos permitidos. No puedes realizar más intentos.');
+                alert(`Ya has completado los 3 intentos para ${exams[currentExam].name}. No puedes realizar más intentos.`);
                 return;
             }
 
             currentStudent.currentAttempt = currentStudent.attempts.length + 1;
             
             // Guardar en localStorage
-            localStorage.setItem(storageKey, JSON.stringify(currentStudent));
+            localStorage.setItem(examKey, JSON.stringify(currentStudent));
 
             // Mostrar examen
             document.getElementById('registrationForm').style.display = 'none';
@@ -726,15 +1086,15 @@
         }
 
         function resetAttempt() {
-            answers = new Array(questions.length).fill(null);
-            attempts = new Array(questions.length).fill(0);
-            questionStatus = new Array(questions.length).fill('pending');
+            const exam = exams[currentExam];
+            answers = new Array(exam.questions.length).fill(null);
+            questionStatus = new Array(exam.questions.length).fill('pending');
             currentQuestion = 0;
             timeLeft = 3600;
             examFinished = false;
             attemptStartTime = new Date();
             
-            if (currentQuestion < questions.length) {
+            if (currentQuestion < exam.questions.length) {
                 document.querySelectorAll('.question').forEach(q => q.style.display = 'none');
                 const firstQuestion = document.getElementById('q0');
                 if (firstQuestion) firstQuestion.style.display = 'block';
@@ -754,6 +1114,8 @@
                 attemptsBox.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
             } else if (currentStudent.attempts.length >= 1) {
                 attemptsBox.style.background = 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
+            } else {
+                attemptsBox.style.background = 'linear-gradient(135deg, #f39c12 0%, #f1c40f 100%)';
             }
         }
 
@@ -783,18 +1145,22 @@
             const container = document.getElementById('questionsContainer');
             container.innerHTML = '';
             
-            questions.forEach((q, index) => {
+            const exam = exams[currentExam];
+            
+            exam.questions.forEach((q, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question';
                 questionDiv.id = `q${index}`;
                 questionDiv.style.display = index === 0 ? 'block' : 'none';
                 
+                const isAnswered = questionStatus[index] !== 'pending';
+                
                 questionDiv.innerHTML = `
                     <div class="question-header">
                         <div class="question-number">Pregunta ${index + 1} - ${q.topic}</div>
-                        <div class="attempts-badge" id="badge-${index}">
-                            Intentos: ${attempts[index]}/3
-                        </div>
+                        ${isAnswered ? 
+                            `<div class="answered-badge">${questionStatus[index] === 'correct' ? '✓ Correcta' : '✗ Incorrecta'}</div>` : 
+                            `<div class="question-status">Esperando respuesta</div>`}
                     </div>
                     <div class="question-text">${index + 1}. ${q.text}</div>
                     <div class="options" id="options-${index}">
@@ -803,147 +1169,115 @@
                             const isCorrect = optIndex === q.correct;
                             let optionClass = 'option';
                             
-                            if (questionStatus[index] === 'correct' && isCorrect) {
-                                optionClass += ' correct-answer';
-                            } else if (questionStatus[index] === 'incorrect' && isSelected) {
-                                optionClass += ' incorrect-answer';
+                            if (isAnswered) {
+                                if (isCorrect) {
+                                    optionClass += ' correct-answer';
+                                } else if (isSelected && !isCorrect) {
+                                    optionClass += ' incorrect-answer';
+                                }
+                                optionClass += ' answered';
                             } else if (isSelected) {
                                 optionClass += ' selected';
-                            }
-                            
-                            if (questionStatus[index] === 'correct' || attempts[index] >= 3) {
-                                optionClass += ' disabled';
                             }
                             
                             return `
                                 <label class="${optionClass}">
                                     <input type="radio" name="q${index}" value="${optIndex}" 
                                         ${isSelected ? 'checked' : ''} 
-                                        ${(questionStatus[index] === 'correct' || attempts[index] >= 3) ? 'disabled' : ''}
+                                        ${isAnswered ? 'disabled' : ''}
                                         onchange="handleAnswer(${index}, ${optIndex})">
                                     ${String.fromCharCode(65 + optIndex)}. ${opt}
                                 </label>
                             `;
                         }).join('')}
                     </div>
-                    <div id="feedback-${index}" class="feedback-message"></div>
+                    <div id="feedback-${index}" class="feedback-message">
+                        ${isAnswered && questionStatus[index] === 'incorrect' ? 
+                            `<div class="feedback-incorrect">❌ Incorrecto. La respuesta correcta es ${String.fromCharCode(65 + q.correct)}. ${q.explanation || ''}</div>` : 
+                            isAnswered && questionStatus[index] === 'correct' ?
+                            `<div class="feedback-correct">✓ ¡Correcto! ${q.explanation || ''}</div>` : ''}
+                    </div>
                 `;
                 
                 container.appendChild(questionDiv);
             });
-            
-            updateFeedback(currentQuestion);
         }
 
         function handleAnswer(questionIndex, optionIndex) {
-            if (questionStatus[questionIndex] === 'correct' || attempts[questionIndex] >= 3 || examFinished) {
+            // Si ya respondió, no permitir cambiar
+            if (questionStatus[questionIndex] !== 'pending' || examFinished) {
                 return;
             }
 
-            const isCorrect = optionIndex === questions[questionIndex].correct;
+            const exam = exams[currentExam];
+            const isCorrect = optionIndex === exam.questions[questionIndex].correct;
             
-            attempts[questionIndex]++;
+            // Guardar respuesta
+            answers[questionIndex] = optionIndex;
             
             if (isCorrect) {
                 questionStatus[questionIndex] = 'correct';
-                answers[questionIndex] = optionIndex;
-                showFeedback(questionIndex, '¡Correcto! Bien hecho.', 'correct');
             } else {
-                answers[questionIndex] = optionIndex;
-                
-                if (attempts[questionIndex] >= 3) {
-                    questionStatus[questionIndex] = 'incorrect';
-                    showFeedback(questionIndex, `Incorrecto. Has agotado tus 3 intentos. La respuesta correcta es ${String.fromCharCode(65 + questions[questionIndex].correct)}.`, 'incorrect');
-                } else {
-                    const attemptsLeft = 3 - attempts[questionIndex];
-                    showFeedback(questionIndex, `Incorrecto. Te quedan ${attemptsLeft} intento${attemptsLeft !== 1 ? 's' : ''}.`, 'info');
-                }
+                questionStatus[questionIndex] = 'incorrect';
             }
             
+            // Actualizar la interfaz de la pregunta actual
             updateQuestionDisplay(questionIndex);
             updateProgress();
         }
 
-        function showFeedback(questionIndex, message, type) {
-            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
-            feedbackDiv.textContent = message;
-            feedbackDiv.className = `feedback-message feedback-${type}`;
-        }
-
         function updateQuestionDisplay(questionIndex) {
-            const optionsContainer = document.getElementById(`options-${questionIndex}`);
-            const q = questions[questionIndex];
+            const questionDiv = document.getElementById(`q${questionIndex}`);
+            const exam = exams[currentExam];
+            const q = exam.questions[questionIndex];
             
+            // Actualizar header
+            const header = questionDiv.querySelector('.question-header');
+            const answeredBadge = questionStatus[questionIndex] === 'correct' ? 
+                '<div class="answered-badge">✓ Correcta</div>' : 
+                '<div class="answered-badge">✗ Incorrecta</div>';
+            
+            header.innerHTML = `
+                <div class="question-number">Pregunta ${questionIndex + 1} - ${q.topic}</div>
+                ${answeredBadge}
+            `;
+            
+            // Actualizar opciones
+            const optionsContainer = document.getElementById(`options-${questionIndex}`);
             const labels = optionsContainer.querySelectorAll('.option');
             labels.forEach((label, idx) => {
                 const radio = label.querySelector('input');
                 const isSelected = answers[questionIndex] === idx;
                 const isCorrect = idx === q.correct;
                 
-                label.classList.remove('correct-answer', 'incorrect-answer', 'selected', 'disabled');
+                label.classList.remove('correct-answer', 'incorrect-answer', 'selected', 'answered');
                 
-                if (questionStatus[questionIndex] === 'correct') {
-                    if (isCorrect) {
-                        label.classList.add('correct-answer');
-                    }
-                    radio.disabled = true;
-                    label.classList.add('disabled');
-                } else if (questionStatus[questionIndex] === 'incorrect') {
-                    if (isCorrect) {
-                        label.classList.add('correct-answer');
-                    } else if (isSelected) {
-                        label.classList.add('incorrect-answer');
-                    }
-                    radio.disabled = true;
-                    label.classList.add('disabled');
-                } else if (attempts[questionIndex] >= 3) {
-                    radio.disabled = true;
-                    label.classList.add('disabled');
-                } else {
-                    radio.disabled = false;
-                    if (isSelected) {
-                        label.classList.add('selected');
-                    }
+                if (isCorrect) {
+                    label.classList.add('correct-answer');
+                } else if (isSelected && !isCorrect) {
+                    label.classList.add('incorrect-answer');
                 }
+                
+                label.classList.add('answered');
+                radio.disabled = true;
             });
             
-            const badge = document.getElementById(`badge-${questionIndex}`);
-            if (badge) {
-                badge.textContent = `Intentos: ${attempts[questionIndex]}/3`;
-                if (attempts[questionIndex] >= 3) {
-                    badge.style.backgroundColor = '#dc3545';
-                } else {
-                    badge.style.backgroundColor = '#e74c3c';
-                }
-            }
-        }
-
-        function updateFeedback(questionIndex) {
-            const q = questions[questionIndex];
-            
-            if (questionStatus[questionIndex] === 'correct') {
-                showFeedback(questionIndex, '¡Correcto! Bien hecho.', 'correct');
-            } else if (questionStatus[questionIndex] === 'incorrect') {
-                showFeedback(questionIndex, `Has agotado tus 3 intentos. La respuesta correcta es ${String.fromCharCode(65 + q.correct)}.`, 'incorrect');
-            } else if (attempts[questionIndex] > 0) {
-                const attemptsLeft = 3 - attempts[questionIndex];
-                showFeedback(questionIndex, `Te quedan ${attemptsLeft} intento${attemptsLeft !== 1 ? 's' : ''}.`, 'info');
+            // Actualizar feedback
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+            if (questionStatus[questionIndex] === 'incorrect') {
+                feedbackDiv.innerHTML = `<div class="feedback-incorrect">❌ Incorrecto. La respuesta correcta es ${String.fromCharCode(65 + q.correct)}. ${q.explanation || ''}</div>`;
             } else {
-                const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
-                if (feedbackDiv) {
-                    feedbackDiv.textContent = '';
-                    feedbackDiv.className = 'feedback-message';
-                }
+                feedbackDiv.innerHTML = `<div class="feedback-correct">✓ ¡Correcto! ${q.explanation || ''}</div>`;
             }
         }
 
         function nextQuestion() {
-            if (currentQuestion < questions.length - 1) {
+            const exam = exams[currentExam];
+            if (currentQuestion < exam.questions.length - 1) {
                 document.getElementById(`q${currentQuestion}`).style.display = 'none';
                 currentQuestion++;
                 document.getElementById(`q${currentQuestion}`).style.display = 'block';
                 updateNavigationButtons();
-                updateFeedback(currentQuestion);
             }
         }
 
@@ -953,37 +1287,36 @@
                 currentQuestion--;
                 document.getElementById(`q${currentQuestion}`).style.display = 'block';
                 updateNavigationButtons();
-                updateFeedback(currentQuestion);
             }
         }
 
         function updateNavigationButtons() {
+            const exam = exams[currentExam];
             document.getElementById('prevBtn').disabled = currentQuestion === 0;
-            document.getElementById('nextBtn').disabled = currentQuestion === questions.length - 1;
+            document.getElementById('nextBtn').disabled = currentQuestion === exam.questions.length - 1;
         }
 
         function updateProgress() {
-            const answered = attempts.filter(a => a > 0).length;
-            const progress = (answered / questions.length) * 100;
+            const answered = questionStatus.filter(s => s !== 'pending').length;
+            const exam = exams[currentExam];
+            const progress = (answered / exam.questions.length) * 100;
             document.getElementById('progress').style.width = `${progress}%`;
         }
 
         function calculateResults() {
+            const exam = exams[currentExam];
             let correct = 0;
             let incorrect = 0;
             let unanswered = 0;
-            let totalAttempts = 0;
             
-            const topicResults = {
-                'Trigonometría': { total: 0, correct: 0, attempts: 0 },
-                'Sistemas 2x2': { total: 0, correct: 0, attempts: 0 },
-                'Sistemas 3x3': { total: 0, correct: 0, attempts: 0 }
-            };
+            const topicResults = {};
 
-            questions.forEach((q, index) => {
+            exam.questions.forEach((q, index) => {
+                if (!topicResults[q.topic]) {
+                    topicResults[q.topic] = { total: 0, correct: 0 };
+                }
+                
                 topicResults[q.topic].total++;
-                topicResults[q.topic].attempts += attempts[index];
-                totalAttempts += attempts[index];
                 
                 if (questionStatus[index] === 'correct') {
                     correct++;
@@ -995,33 +1328,34 @@
                 }
             });
 
-            return { correct, incorrect, unanswered, totalAttempts, topicResults };
+            return { correct, incorrect, unanswered, topicResults };
         }
 
         async function finishAttempt() {
             examFinished = true;
             clearInterval(timer);
             
+            const exam = exams[currentExam];
             const results = calculateResults();
-            const totalScore = (results.correct / questions.length * 100).toFixed(1);
+            const totalScore = (results.correct / exam.questions.length * 100).toFixed(1);
             
             // Guardar este intento
             const attemptData = {
+                examName: exam.name,
                 attemptNumber: currentStudent.currentAttempt,
                 date: new Date().toLocaleString(),
                 timeUsed: formatTime(3600 - timeLeft),
                 results: results,
                 totalScore: totalScore,
                 answers: [...answers],
-                attempts: [...attempts],
                 questionStatus: [...questionStatus]
             };
             
             currentStudent.attempts.push(attemptData);
             
-            // Guardar en localStorage
-            const storageKey = `student_${currentStudent.email}`;
-            localStorage.setItem(storageKey, JSON.stringify(currentStudent));
+            // Guardar en localStorage específico para este examen
+            const examKey = `student_${currentStudent.email}_exam${currentExam}`;
+            localStorage.setItem(examKey, JSON.stringify(currentStudent));
             
             // Enviar por email
             await sendResultsByEmail(attemptData);
@@ -1041,18 +1375,22 @@
                 const templateParams = {
                     student_name: currentStudent.name,
                     student_email: currentStudent.email,
+                    exam_name: exams[currentExam].name,
                     date: attemptData.date,
                     attempt_number: attemptData.attemptNumber,
                     time_used: attemptData.timeUsed,
                     score: attemptData.totalScore,
                     correct: attemptData.results.correct,
                     incorrect: attemptData.results.incorrect,
-                    unanswered: attemptData.results.unanswered,
-                    trigonometria: `${attemptData.results.topicResults['Trigonometría'].correct}/${attemptData.results.topicResults['Trigonometría'].total} (${(attemptData.results.topicResults['Trigonometría'].correct/attemptData.results.topicResults['Trigonometría'].total*100).toFixed(1)}%)`,
-                    sistemas_2x2: `${attemptData.results.topicResults['Sistemas 2x2'].correct}/${attemptData.results.topicResults['Sistemas 2x2'].total} (${(attemptData.results.topicResults['Sistemas 2x2'].correct/attemptData.results.topicResults['Sistemas 2x2'].total*100).toFixed(1)}%)`,
-                    sistemas_3x3: `${attemptData.results.topicResults['Sistemas 3x3'].correct}/${attemptData.results.topicResults['Sistemas 3x3'].total} (${(attemptData.results.topicResults['Sistemas 3x3'].correct/attemptData.results.topicResults['Sistemas 3x3'].total*100).toFixed(1)}%)`,
-                    total_attempts: attemptData.results.totalAttempts
+                    unanswered: attemptData.results.unanswered
                 };
+
+                // Añadir resultados por tema
+                let topicDetails = '';
+                for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
+                    topicDetails += `${topic}: ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)\n`;
+                }
+                templateParams.topic_details = topicDetails;
 
                 console.log('📧 Enviando correo con parámetros:', templateParams);
 
@@ -1084,6 +1422,7 @@
 
         function saveLocalCopy(attemptData) {
             const results = {
+                examen: exams[currentExam].name,
                 estudiante: currentStudent.name,
                 email: currentStudent.email,
                 intento: attemptData.attemptNumber,
@@ -1091,12 +1430,11 @@
                 puntaje: attemptData.totalScore + '%',
                 correctas: attemptData.results.correct,
                 incorrectas: attemptData.results.incorrect,
-                sin_responder: attemptData.results.unanswered,
-                intentos_totales: attemptData.results.totalAttempts
+                sin_responder: attemptData.results.unanswered
             };
             
             // Guardar en localStorage como respaldo
-            const backupKey = `backup_${currentStudent.email}_${Date.now()}`;
+            const backupKey = `backup_${currentStudent.email}_exam${currentExam}_${Date.now()}`;
             localStorage.setItem(backupKey, JSON.stringify(results));
             
             console.log('📦 Copia de seguridad guardada:', backupKey);
@@ -1106,7 +1444,21 @@
             document.getElementById('modalAttemptNumber').textContent = attemptData.attemptNumber;
             
             const resultsContent = document.getElementById('resultsContent');
+            
+            let topicHtml = '';
+            for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
+                topicHtml += `
+                    <div class="result-item">
+                        <span class="result-label">${topic}:</span> 
+                        ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)
+                    </div>
+                `;
+            }
+            
             resultsContent.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Examen:</span> ${exams[currentExam].name}
+                </div>
                 <div class="result-item">
                     <span class="result-label">Estudiante:</span> ${currentStudent.name}
                 </div>
@@ -1126,13 +1478,7 @@
                 </div>
                 <div style="margin: 20px 0;">
                     <h3>Desglose por tema:</h3>
-                    ${Object.entries(attemptData.results.topicResults).map(([topic, data]) => `
-                        <div class="result-item">
-                            <span class="result-label">${topic}:</span> 
-                            ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)
-                            <br><small>Intentos totales: ${data.attempts}</small>
-                        </div>
-                    `).join('')}
+                    ${topicHtml}
                 </div>
             `;
             
@@ -1143,13 +1489,14 @@
             const historyContent = document.getElementById('historyContent');
             
             if (currentStudent.attempts.length === 0) {
-                historyContent.innerHTML = '<p>No hay intentos previos.</p>';
+                historyContent.innerHTML = '<p>No hay intentos previos para este examen.</p>';
             } else {
                 historyContent.innerHTML = currentStudent.attempts.map((attempt, index) => `
                     <div class="result-item" style="border-left: 5px solid ${attempt.totalScore >= 60 ? '#27ae60' : '#e74c3c'};">
                         <h4>Intento #${attempt.attemptNumber} - ${attempt.date}</h4>
+                        <p><strong>Examen:</strong> ${attempt.examName}</p>
                         <p><strong>Puntuación:</strong> ${attempt.totalScore}%</p>
-                        <p><strong>Correctas:</strong> ${attempt.results.correct}/${questions.length}</p>
+                        <p><strong>Correctas:</strong> ${attempt.results.correct}/${exams[currentExam].questions.length}</p>
                         <p><strong>Tiempo:</strong> ${attempt.timeUsed}</p>
                         <button class="btn-primary" onclick="viewAttemptDetails(${index})" style="margin-top: 10px; padding: 5px 15px;">Ver detalles</button>
                     </div>
@@ -1161,7 +1508,50 @@
 
         function viewAttemptDetails(attemptIndex) {
             closeHistoryModal();
-            showAttemptResults(currentStudent.attempts[attemptIndex]);
+            const attemptData = currentStudent.attempts[attemptIndex];
+            
+            document.getElementById('modalAttemptNumber').textContent = attemptData.attemptNumber;
+            
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let topicHtml = '';
+            for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
+                topicHtml += `
+                    <div class="result-item">
+                        <span class="result-label">${topic}:</span> 
+                        ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)
+                    </div>
+                `;
+            }
+            
+            resultsContent.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Examen:</span> ${attemptData.examName}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Estudiante:</span> ${currentStudent.name}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Email:</span> ${currentStudent.email}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Fecha:</span> ${attemptData.date}
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Tiempo utilizado:</span> ${attemptData.timeUsed}
+                </div>
+                <div style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
+                    <h3 style="margin-bottom: 10px;">Puntuación Total</h3>
+                    <div style="font-size: 48px; font-weight: bold;">${attemptData.totalScore}%</div>
+                    <div>${attemptData.results.correct} correctas | ${attemptData.results.incorrect} incorrectas | ${attemptData.results.unanswered} sin responder</div>
+                </div>
+                <div style="margin: 20px 0;">
+                    <h3>Desglose por tema:</h3>
+                    ${topicHtml}
+                </div>
+            `;
+            
+            document.getElementById('resultsModal').style.display = 'flex';
         }
 
         function closeHistoryModal() {
@@ -1180,12 +1570,15 @@
             
             // Verificar si quedan intentos
             if (currentStudent.attempts.length >= 3) {
-                alert('Has completado los 3 intentos. Gracias por participar.');
-                location.reload();
+                alert(`Has completado los 3 intentos para ${exams[currentExam].name}. Gracias por participar.`);
+                // Volver al registro
+                document.getElementById('examContent').style.display = 'none';
+                document.getElementById('registrationForm').style.display = 'block';
             } else {
-                if (confirm('¿Quieres intentarlo de nuevo? Te quedan ' + (3 - currentStudent.attempts.length) + ' intentos.')) {
+                if (confirm(`¿Quieres intentarlo de nuevo? Te quedan ${3 - currentStudent.attempts.length} intentos.`)) {
                     currentStudent.currentAttempt = currentStudent.attempts.length + 1;
-                    localStorage.setItem(`student_${currentStudent.email}`, JSON.stringify(currentStudent));
+                    const examKey = `student_${currentStudent.email}_exam${currentExam}`;
+                    localStorage.setItem(examKey, JSON.stringify(currentStudent));
                     resetAttempt();
                     startTimer();
                     renderQuestions();
@@ -1196,9 +1589,11 @@
 
         function downloadResults() {
             const attemptData = currentStudent.attempts[currentStudent.attempts.length - 1];
+            const exam = exams[currentExam];
             
             let content = `RESULTADOS SIMULACRO EXANI II\n`;
             content += `===============================\n\n`;
+            content += `Examen: ${exam.name}\n`;
             content += `Estudiante: ${currentStudent.name}\n`;
             content += `Email: ${currentStudent.email}\n`;
             content += `Intento: ${attemptData.attemptNumber}/3\n`;
@@ -1208,14 +1603,19 @@
             content += `Puntuación total: ${attemptData.totalScore}%\n`;
             content += `Respuestas correctas: ${attemptData.results.correct}\n`;
             content += `Respuestas incorrectas: ${attemptData.results.incorrect}\n`;
-            content += `Sin responder: ${attemptData.results.unanswered}\n`;
-            content += `Total de intentos en preguntas: ${attemptData.results.totalAttempts}\n\n`;
+            content += `Sin responder: ${attemptData.results.unanswered}\n\n`;
+            
+            content += `DESGLOSE POR TEMA\n`;
+            content += `-----------------\n`;
+            for (const [topic, data] of Object.entries(attemptData.results.topicResults)) {
+                content += `${topic}: ${data.correct}/${data.total} (${(data.correct/data.total*100).toFixed(1)}%)\n`;
+            }
             
             const blob = new Blob([content], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `resultados_${currentStudent.name}_intento${attemptData.attemptNumber}.txt`;
+            a.download = `resultados_${exam.name}_${currentStudent.name}_intento${attemptData.attemptNumber}.txt`;
             a.click();
             window.URL.revokeObjectURL(url);
         }
